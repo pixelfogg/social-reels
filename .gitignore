@@ -1,0 +1,25 @@
+# Python Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary and Media Storage
+storage/downloads/*
+!storage/downloads/.gitkeep
+storage/outputs/*
+!storage/outputs/.gitkeep
+storage/temp/*
+!storage/temp/.gitkeep
+storage/clips/*
+!storage/clips/.gitkeep
+
+# IDE and OS files
+.vscode/
+.idea/
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReelsAI Studio - YouTube to Viral Shorts & Reels with Animated Captions</title>
+    <meta name="description" content="Convert any YouTube video into vertical 9:16 Reels and Shorts with smart face tracking and word-by-word animated karaoke captions.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Montserrat:wght@700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Background Ambient Glows -->
+        <div class="ambient-glow glow-1"></div>
+        <div class="ambient-glow glow-2"></div>
+        <div class="ambient-glow glow-3"></div>
+
+        <!-- Navigation Bar -->
+        <header class="navbar">
+            <div class="nav-brand">
+                <div class="brand-icon">
+                    <i data-lucide="sparkles"></i>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">Reels<span class="brand-gradient">AI</span></span>
+                    <span class="brand-badge">STUDIO</span>
+                </div>
+            </div>
+            <div class="nav-actions">
+                <div class="badge-tag">
+                    <span class="pulse-dot"></span> Local AI Fast Engine
+                </div>
+                <a href="#studio-section" class="btn-nav">
+                    <i data-lucide="video"></i> My Studio
+                </a>
+            </div>
+        </header>
+
+        <!-- Hero & Input Section -->
+        <section class="hero-section">
+            <div class="hero-badge">
+                <i data-lucide="zap"></i> AI-Powered YouTube to Reels & Shorts Generator
+            </div>
+            <h1 class="hero-title">
+                Turn Long Videos into <span class="text-gradient">Viral 9:16 Reels</span> with Animated Captions
+            </h1>
+            <p class="hero-subtitle">
+                Automated word-by-word karaoke pop subtitles, smart speaker face reframing, and AI viral hook discovery — all in seconds.
+            </p>
+
+            <!-- Main Input Card -->
+            <div class="input-card glass-panel">
+                <div class="input-tabs">
+                    <button class="tab-btn active" id="tab-youtube" onclick="switchInputTab('youtube')">
+                        <i data-lucide="youtube"></i> YouTube URL
+                    </button>
+                    <button class="tab-btn" id="tab-upload" onclick="switchInputTab('upload')">
+                        <i data-lucide="upload-cloud"></i> Upload Video File
+                    </button>
+                </div>
+
+                <!-- YouTube Form -->
+                <div class="tab-content" id="youtube-content">
+                    <div class="input-group">
+                        <div class="input-icon">
+                            <i data-lucide="link"></i>
+                        </div>
+                        <input type="text" id="video-url-input" placeholder="Paste YouTube link (e.g. https://www.youtube.com/watch?v=...)" value="https://www.youtube.com/watch?v=UF8uR6Z6KLc">
+                        <button class="btn-paste" onclick="pasteFromClipboard()" title="Paste from clipboard">
+                            <i data-lucide="clipboard"></i>
+                        </button>
+                    </div>
+
+                    <!-- Quick Sample Suggestions -->
+                    <div class="sample-pills">
+                        <span class="sample-label"><i data-lucide="flame"></i> Try Instant Demo:</span>
+                        <button class="sample-btn" onclick="loadSample('https://www.youtube.com/watch?v=UF8uR6Z6KLc', 'Steve Jobs - Secrets of Life')">
+                            🍎 Steve Jobs Talk
+                        </button>
+                        <button class="sample-btn" onclick="loadSample('https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'Alex Hormozi Business Growth')">
+                            💼 Hormozi Business
+                        </button>
+                        <button class="sample-btn" onclick="loadSample('https://www.youtube.com/watch?v=L_Guz73e6fw', 'Lex Fridman AI Future')">
+                            🎙️ Lex Fridman Podcast
+                        </button>
+                    </div>
+                </div>
+
+                <!-- File Upload Form -->
+                <div class="tab-content hidden" id="upload-content">
+                    <div class="drop-zone" id="drop-zone">
+                        <input type="file" id="file-input" accept="video/mp4,video/mov,video/webm,video/mkv" style="display: none;" onchange="handleFileSelect(event)">
+                        <div class="drop-icon">
+                            <i data-lucide="file-video"></i>
+                        </div>
+                        <p class="drop-title">Drag & drop your video file here, or <span class="drop-highlight">browse</span></p>
+                        <p class="drop-hint">Supports MP4, MOV, MKV, WEBM (up to 1080p / 4K)</p>
+                        <div id="selected-file-info" class="selected-file-badge hidden">
+                            <i data-lucide="check-circle-2"></i> <span id="selected-file-name">file.mp4</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Studio Mode Selector -->
+                <div class="studio-mode-selector">
+                    <div class="mode-pill-container">
+                        <button class="mode-pill active" id="mode-transformative" onclick="setStudioMode('transformative_hindi')">
+                            <i data-lucide="shield-check"></i>
+                            <div class="mode-text">
+                                <span class="mode-title">🛡️ Transformative Hindi Mini-Doc (100% Monetizable)</span>
+                                <span class="mode-desc">AI Hindi Script + Neural Voiceover + B-Roll + Zero Copyright Risk</span>
+                            </div>
+                        </button>
+                        <button class="mode-pill" id="mode-direct" onclick="setStudioMode('direct_highlights')">
+                            <i data-lucide="scissors"></i>
+                            <div class="mode-text">
+                                <span class="mode-title">🎬 Direct Highlights Mode (Original Audio)</span>
+                                <span class="mode-desc">10–15 Auto-extracted highlight reels with bottom captions</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Studio Generation Configuration -->
+                <div class="config-grid">
+                    <!-- Transformative Specific Controls -->
+                    <div class="config-item" id="item-voice-selector">
+                        <label><i data-lucide="mic"></i> Hindi AI Voice</label>
+                        <select id="config-voice" class="select-styled">
+                            <option value="hi-IN-MadhurNeural" selected>🎙️ Madhur — Deep Hindi Documentary (Male)</option>
+                            <option value="hi-IN-SwaraNeural">🎙️ Swara — Dynamic Storyteller (Female)</option>
+                            <option value="en-IN-PrabhatNeural">🎙️ Prabhat — Indian English (Male)</option>
+                            <option value="en-US-ChristopherNeural">🎙️ Christopher — Deep English (Male)</option>
+                        </select>
+                    </div>
+
+                    <div class="config-item" id="item-story-style">
+                        <label><i data-lucide="sparkles"></i> Hindi Narrative Style</label>
+                        <select id="config-story-style" class="select-styled">
+                            <option value="untold_story" selected>🔥 रहस्यमयी कहानी (The Untold Story)</option>
+                            <option value="masterclass">💡 1 मिनट मास्टरक्लास (Masterclass Lesson)</option>
+                            <option value="costly_mistake">⚠️ 99% लोग यह गलती करते हैं (Costly Mistake)</option>
+                        </select>
+                    </div>
+
+                    <div class="config-item">
+                        <label><i data-lucide="layers"></i> Number of Reels</label>
+                        <select id="config-num-reels" class="select-styled">
+                            <option value="1">1 Viral Reel</option>
+                            <option value="3" selected>3 Viral Reels (Recommended)</option>
+                            <option value="5">5 Viral Reels</option>
+                            <option value="8">8 Viral Reels</option>
+                            <option value="10">10 Viral Reels (Campaign Pack)</option>
+                            <option value="12">12 Viral Reels</option>
+                            <option value="15">15 Viral Reels (Full Series Breakdown)</option>
+                        </select>
+                    </div>
+
+                    <div class="config-item">
+                        <label><i data-lucide="gauge"></i> Analysis Video Range</label>
+                        <select id="config-analysis-range" class="select-styled">
+                            <option value="300" selected>⚡ First 5 Mins (Ultra Fast)</option>
+                            <option value="600">⏱️ First 10 Mins</option>
+                            <option value="900">🎬 First 15 Mins</option>
+                            <option value="0">🌟 Entire Full Video</option>
+                        </select>
+                    </div>
+
+                    <div class="config-item">
+                        <label><i data-lucide="type"></i> Animated Caption Style</label>
+                        <select id="config-theme" class="select-styled" onchange="previewThemeChange()">
+                            <option value="hormozi" selected>🔥 Hormozi Viral Pop (Bold Gold)</option>
+                            <option value="mrbeast">⚡ MrBeast Action (Electric Green)</option>
+                            <option value="submagic">🔮 Submagic Glow (Violet Neon)</option>
+                            <option value="cyberpunk">🌌 Cyberpunk Neon (Cyan)</option>
+                            <option value="minimalist">🎬 Minimalist Cinema (Clean)</option>
+                        </select>
+                    </div>
+
+                    <div class="config-item">
+                        <label><i data-lucide="align-vertical-distribute-center"></i> Caption Position</label>
+                        <select id="config-position" class="select-styled">
+                            <option value="bottom" selected>📍 Bottom (Platform Safe Zone)</option>
+                            <option value="center">🎯 Center Screen</option>
+                            <option value="top">🔝 Top Banner</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Primary Action Button -->
+                <div class="action-footer">
+                    <button class="btn-generate" id="btn-start-generate" onclick="startGeneration()">
+                        <span class="btn-content">
+                            <i data-lucide="sparkles"></i> Generate Viral Reels with Captions
+                        </span>
+                        <div class="btn-glow"></div>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progress Tracker Section -->
+        <section class="progress-section hidden" id="progress-section">
+            <div class="progress-card glass-panel">
+                <div class="progress-header">
+                    <div class="progress-info">
+                        <span class="progress-badge" id="progress-stage-badge">PROCESSING</span>
+                        <h3 class="progress-title" id="progress-title">Transforming your video into viral reels...</h3>
+                    </div>
+                    <div class="progress-percent" id="progress-percent">0%</div>
+                </div>
+
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;">
+                        <div class="progress-shimmer"></div>
+                    </div>
+                </div>
+
+                <div class="progress-steps">
+                    <div class="step-item active" id="step-dl">
+                        <div class="step-icon"><i data-lucide="download"></i></div>
+                        <span>1. Ingest Video</span>
+                    </div>
+                    <div class="step-item" id="step-ai">
+                        <div class="step-icon"><i data-lucide="mic"></i></div>
+                        <span>2. Word AI Timestamps</span>
+                    </div>
+                    <div class="step-item" id="step-hook">
+                        <div class="step-icon"><i data-lucide="target"></i></div>
+                        <span>3. Viral Hook Detection</span>
+                    </div>
+                    <div class="step-item" id="step-render">
+                        <div class="step-icon"><i data-lucide="film"></i></div>
+                        <span>4. 9:16 & Captions Render</span>
+                    </div>
+                </div>
+
+                <p class="progress-msg" id="progress-detail-msg">Initializing...</p>
+            </div>
+        </section>
+
+        <!-- Results & Interactive Studio Section -->
+        <section class="results-section hidden" id="studio-section">
+            <div class="section-header">
+                <div>
+                    <span class="badge-tag"><i data-lucide="check-circle"></i> Ready to Export</span>
+                    <h2 class="section-title">Your Generated <span class="text-gradient">Viral Reels</span></h2>
+                </div>
+                <div class="batch-actions">
+                    <button class="btn-secondary" onclick="downloadAllZip()">
+                        <i data-lucide="archive"></i> Download All as .ZIP
+                    </button>
+                    <button class="btn-primary" onclick="resetStudio()">
+                        <i data-lucide="plus"></i> New Video
+                    </button>
+                </div>
+            </div>
+
+            <div class="studio-layout">
+                <!-- Left: List of Generated Reels Cards -->
+                <div class="reels-list-panel">
+                    <h4 class="panel-heading"><i data-lucide="list-video"></i> Generated Clips</h4>
+                    <div class="reels-grid" id="reels-container">
+                        <!-- Dynamic Reel Cards injected via JS -->
+                    </div>
+                </div>
+
+                <!-- Right: Active Reel 9:16 Video Player & Customizer Studio -->
+                <div class="reel-preview-panel glass-panel" id="preview-panel">
+                    <div class="preview-header">
+                        <div class="preview-title-area">
+                            <span class="virality-chip" id="active-virality-chip">🔥 96/100 Viral Score</span>
+                            <h3 class="active-clip-title" id="active-clip-title">The Secret to Success</h3>
+                        </div>
+                        <a id="btn-direct-download" href="#" download class="btn-icon-action" title="Download this reel MP4">
+                            <i data-lucide="download"></i>
+                        </a>
+                    </div>
+
+                    <!-- 9:16 Vertical Mobile Phone Frame -->
+                    <div class="phone-mockup">
+                        <div class="phone-speaker"></div>
+                        <div class="video-container">
+                            <video id="main-reel-video" controls autoplay loop playsinline>
+                                <source src="" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            <div class="video-watermark">
+                                <i data-lucide="sparkles"></i> ReelsAI
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Reel Customizer -->
+                    <div class="reel-editor-tabs">
+                        <div class="customizer-box">
+                            <h4 class="customizer-title"><i data-lucide="sliders"></i> Live Style & Time Customizer</h4>
+                            
+                            <div class="editor-grid">
+                                <div class="editor-field">
+                                    <label>Caption Style</label>
+                                    <select id="edit-theme" class="select-styled-sm">
+                                        <option value="hormozi">🔥 Hormozi Pop (Gold)</option>
+                                        <option value="mrbeast">⚡ MrBeast Action (Green)</option>
+                                        <option value="submagic">🔮 Submagic Glow (Violet)</option>
+                                        <option value="cyberpunk">🌌 Cyberpunk (Cyan)</option>
+                                        <option value="minimalist">🎬 Minimalist (Clean)</option>
+                                    </select>
+                                </div>
+
+                                <div class="editor-field">
+                                    <label>Highlight Color</label>
+                                    <select id="edit-color" class="select-styled-sm">
+                                        <option value="yellow_pop">Vibrant Gold</option>
+                                        <option value="neon_green">Electric Green</option>
+                                        <option value="cyber_cyan">Neon Cyan</option>
+                                        <option value="fire_orange">Flame Orange</option>
+                                        <option value="submagic_purple">Vivid Violet</option>
+                                    </select>
+                                </div>
+
+                                <div class="editor-field">
+                                    <label>Framing Mode</label>
+                                    <select id="edit-layout" class="select-styled-sm">
+                                        <option value="blur_canvas">Blurred Canvas</option>
+                                        <option value="smart_crop">Smart Face Track</option>
+                                        <option value="center_crop">Center Crop</option>
+                                    </select>
+                                </div>
+
+                                <div class="editor-field">
+                                    <label>Position</label>
+                                    <select id="edit-position" class="select-styled-sm">
+                                        <option value="bottom" selected>Bottom (Safe Zone)</option>
+                                        <option value="center">Center Screen</option>
+                                        <option value="top">Top Banner</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="trimmer-row">
+                                <div class="trim-input-group">
+                                    <label>Start Time (s)</label>
+                                    <input type="number" id="edit-start-time" step="0.5" min="0" class="input-sm">
+                                </div>
+                                <div class="trim-input-group">
+                                    <label>End Time (s)</label>
+                                    <input type="number" id="edit-end-time" step="0.5" min="0" class="input-sm">
+                                </div>
+                                <button class="btn-rerender" id="btn-rerender-clip" onclick="reRenderActiveClip()">
+                                    <i data-lucide="refresh-cw"></i> Re-Render Clip
+                                </button>
+                            </div>
+
+                            <!-- Multi-Platform Viral Social Posting Pack -->
+                            <div class="social-pack-box">
+                                <div class="social-header">
+                                    <span><i data-lucide="share-2"></i> Viral Multi-Platform Posting Pack</span>
+                                    <div class="platform-tabs">
+                                        <button class="plat-tab active" id="plat-tab-ig" onclick="switchSocialPlatform('instagram')">
+                                            📸 Instagram
+                                        </button>
+                                        <button class="plat-tab" id="plat-tab-yt" onclick="switchSocialPlatform('youtube')">
+                                            🔴 Shorts
+                                        </button>
+                                        <button class="plat-tab" id="plat-tab-fb" onclick="switchSocialPlatform('facebook')">
+                                            🔵 Facebook
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Platform Algorithmic Tips -->
+                                <div class="platform-tip-card" id="platform-tip-card">
+                                    <i data-lucide="sparkles"></i>
+                                    <span id="platform-tip-text">Add a trending sound at 5% volume in Instagram Reels to boost distribution.</span>
+                                </div>
+
+                                <div class="social-text-preview" id="social-text-preview">
+                                    The Untold Secret to Success 🔥
+                                    
+                                    #shorts #reels #viral #foryou #contentcreator
+                                </div>
+
+                                <div class="social-actions-bar">
+                                    <button class="btn-copy-full" onclick="copyActiveSocialPost()">
+                                        <i data-lucide="copy"></i> Copy <span id="copy-btn-platform-label">Instagram</span> Post & Hashtags
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Built with Fast AI Video Engine • Supports YouTube, Shorts & Local Uploads</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
