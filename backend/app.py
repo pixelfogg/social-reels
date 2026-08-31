@@ -29,6 +29,12 @@ from backend.caption_engine import CaptionEngine, THEMES, COLOR_PALETTES
 from backend.voice_engine import VoiceEngine, SUPPORTED_VOICES
 from backend.story_generator import StoryGenerator
 from backend.transformative_processor import TransformativeProcessor
+from backend.audio_vibes import AudioVibeEngine, AUDIO_VIBES
+from backend.history_manager import HistoryManager
+from backend.social_publisher import SocialPublisher
+from backend.viral_story_engine import viral_story_engine, VIRAL_NICHE_PRESETS
+from backend.broll_fetcher import broll_fetcher
+from backend.broll_assembler import broll_assembler
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("videogen")
@@ -57,6 +63,9 @@ caption_engine = CaptionEngine()
 voice_engine = VoiceEngine(transcriber=transcriber)
 story_generator = StoryGenerator()
 transformative_processor = TransformativeProcessor()
+audio_vibe_engine = AudioVibeEngine()
+history_manager = HistoryManager()
+social_publisher = SocialPublisher()
 
 # Sample YouTube videos for quick 1-click testing
 SAMPLE_VIDEOS = [
@@ -82,7 +91,7 @@ SAMPLE_VIDEOS = [
         "url": "https://www.youtube.com/watch?v=L_Guz73e6fw",
         "author": "Lex Fridman",
         "duration": 240,
-        "thumbnail": "https://images.unsplash.com/photo-1589254065878-42c9da997008?w=600&auto=format&fit=crop&q=80"
+        "thumbnail": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80"
     }
 ]
 
@@ -92,13 +101,6 @@ class InfoRequest(BaseModel):
 class GenerateRequest(BaseModel):
     url: Optional[str] = None
     file_path: Optional[str] = None
-    mode: str = "transformative_hindi"  # transformative_hindi, direct_highlights
-    voice_id: str = "hi-IN-MadhurNeural"
-    story_style: str = "untold_story"
-    num_reels: int = 10
-    target_duration: float = 30.0
-    min_duration: float = 15.0
-    max_duration: float = 60.0
     max_analysis_duration: Optional[float] = None  # Optional limit for faster processing
     layout_mode: str = "blur_canvas"  # blur_canvas, smart_crop, center_crop, split_screen
     caption_theme: str = "hormozi"    # hormozi, mrbeast, submagic, cyberpunk, minimalist
@@ -119,6 +121,43 @@ class ReRenderRequest(BaseModel):
     font_size: Optional[int] = None
     enable_emojis: bool = True
     edited_text: Optional[str] = None
+
+class SocialAccountRequest(BaseModel):
+    platform: str
+    credentials: Dict[str, Any]
+
+class SocialDisconnectRequest(BaseModel):
+    platform: str
+
+class SocialPublishRequest(BaseModel):
+    platforms: List[str]
+    reel: Dict[str, Any]
+    host_url: Optional[str] = "http://localhost:8000"
+
+class BRollScriptRequest(BaseModel):
+    topic: str
+    niche: str = "dark_secrets"
+    language: str = "hinglish"
+    duration_mode: Optional[str] = "long"
+    custom_prompt: Optional[str] = None
+    scene_count: Optional[int] = None
+    api_key: Optional[str] = None
+    ai_provider: Optional[str] = None
+
+class BRollSearchRequest(BaseModel):
+    query: str
+    count: int = 4
+
+class BRollRenderRequest(BaseModel):
+    topic: str
+    scenes: List[Dict[str, Any]]
+    voice_id: str = "en-US-AndrewMultilingualNeural"
+    audio_vibe: str = "mystery_suspense"
+    caption_theme: str = "hormozi"
+    caption_position: str = "bottom"
+    language_mode: str = "hindi"
+    framing_mode: Optional[str] = "full_screen"
+    elevenlabs_api_key: Optional[str] = None
 
 @app.get("/api/samples")
 async def get_samples():
@@ -209,7 +248,8 @@ def run_generation_pipeline(job_id: str, req_data: Dict[str, Any]):
 
         mode = req_data.get("mode", "transformative_hindi")
         voice_id = req_data.get("voice_id", "hi-IN-MadhurNeural")
-        story_style = req_data.get("story_style", "untold_story")
+        story_style = req_data.get("story_style", "viral_mystery")
+        audio_vibe = req_data.get("audio_vibe", "mystery_suspense")
         layout_mode = req_data.get("layout_mode", "blur_canvas")
         caption_theme = req_data.get("caption_theme", "hormozi")
         caption_pos = req_data.get("caption_position", "bottom")
@@ -255,7 +295,8 @@ def run_generation_pipeline(job_id: str, req_data: Dict[str, Any]):
                     output_clip_path=out_video_path,
                     theme_name=caption_theme,
                     caption_position=caption_pos,
-                    source_duration=video_meta.get("duration", 60.0)
+                    source_duration=video_meta.get("duration", 60.0),
+                    audio_vibe=audio_vibe
                 )
 
                 rendered_reels.append({
@@ -276,13 +317,26 @@ def run_generation_pipeline(job_id: str, req_data: Dict[str, Any]):
                     "layout_mode": layout_mode,
                     "caption_theme": caption_theme,
                     "caption_position": caption_pos,
-                    "highlight_color": highlight_color
+                    "highlight_color": highlight_color,
+                    "audio_vibe": audio_vibe
                 })
 
             jobs_state[job_id]["reels"] = rendered_reels
             jobs_state[job_id]["status"] = "completed"
             jobs_state[job_id]["percent"] = 100.0
-            jobs_state[job_id]["message"] = f"Successfully generated {len(rendered_reels)} 100% Monetizable Hindi Shorts!"
+            jobs_state[job_id]["message"] = f"Successfully generated {len(rendered_reels)} 100% Monetizable Shorts!"
+
+            # Save to persistent history
+            try:
+                history_manager.save_job(
+                    job_id=job_id,
+                    video_meta=jobs_state[job_id]["video_meta"],
+                    reels=rendered_reels,
+                    mode=mode,
+                    config=req_data
+                )
+            except Exception as e:
+                logger.error(f"Failed to save job {job_id} to history: {e}")
 
         else:
             # Step 3 (Direct Highlights): Viral Hook Analysis & Segment Discovery
@@ -352,13 +406,26 @@ def run_generation_pipeline(job_id: str, req_data: Dict[str, Any]):
                     "layout_mode": layout_mode,
                     "caption_theme": caption_theme,
                     "caption_position": caption_pos,
-                    "highlight_color": highlight_color
+                    "highlight_color": highlight_color,
+                    "audio_vibe": audio_vibe
                 })
 
             jobs_state[job_id]["reels"] = rendered_reels
             jobs_state[job_id]["status"] = "completed"
             jobs_state[job_id]["percent"] = 100.0
             jobs_state[job_id]["message"] = f"Successfully generated {len(rendered_reels)} Viral Reels!"
+
+            # Save to persistent history
+            try:
+                history_manager.save_job(
+                    job_id=job_id,
+                    video_meta=jobs_state[job_id]["video_meta"],
+                    reels=rendered_reels,
+                    mode=mode,
+                    config=req_data
+                )
+            except Exception as e:
+                logger.error(f"Failed to save job {job_id} to history: {e}")
 
     except Exception as e:
         logger.exception(f"Pipeline failed for job {job_id}: {e}")
@@ -548,6 +615,254 @@ async def download_all_reels(job_id: str):
                 zipf.writestr(f"{r['id']}_facebook_reels.txt", fb_text)
 
     return FileResponse(zip_path, media_type="application/zip", filename=zip_filename)
+
+# ----------------- AUDIO VIBES API -----------------
+@app.get("/api/audio_vibes")
+async def get_audio_vibes():
+    """Return available procedural background sound vibes and styles."""
+    return {"vibes": list(AUDIO_VIBES.values())}
+
+# ----------------- HISTORY API -----------------
+@app.get("/api/history")
+async def get_history():
+    """Return list of all past processed video projects."""
+    return {"history": history_manager.get_all_jobs()}
+
+@app.get("/api/history/{job_id}")
+async def get_history_item(job_id: str):
+    """Fetch complete data and clips for a past job."""
+    job = history_manager.get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found in history")
+    # Restore to in-memory state so re-rendering and live edits work seamlessly
+    if job_id not in jobs_state:
+        jobs_state[job_id] = {
+            "status": "completed",
+            "percent": 100.0,
+            "message": f"Loaded from history: {job['video_meta'].get('title', 'Video')}",
+            "video_meta": job.get("video_meta", {}),
+            "reels": job.get("reels", []),
+            "mode": job.get("mode", "transformative_hindi")
+        }
+    return {"status": "success", "job": job}
+
+@app.delete("/api/history/{job_id}")
+async def delete_history_item(job_id: str):
+    """Delete a past job from history."""
+    deleted = history_manager.delete_job(job_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Job not found")
+    if job_id in jobs_state:
+        del jobs_state[job_id]
+    return {"status": "success", "message": f"Job {job_id} deleted successfully"}
+
+# ----------------- SOCIAL ACCOUNTS & 1-CLICK PUBLISHING API -----------------
+@app.get("/api/social/accounts")
+async def get_social_accounts():
+    """Return connection status of connected social platforms."""
+    return {"accounts": social_publisher.get_accounts_status()}
+
+@app.post("/api/social/accounts")
+async def update_social_account(req: SocialAccountRequest):
+    """Save credentials or webhook URL for a social platform."""
+    res = social_publisher.update_account(req.platform, req.credentials)
+    return {"status": "success", "accounts": res}
+
+@app.post("/api/social/disconnect")
+async def disconnect_social_account(req: SocialDisconnectRequest):
+    """Disconnect a social platform."""
+    res = social_publisher.disconnect_account(req.platform)
+    return {"status": "success", "accounts": res}
+
+@app.post("/api/social/publish")
+async def publish_to_social(req: SocialPublishRequest):
+    """1-Click publish reel to selected platforms (Instagram, YouTube Shorts, Twitter, TikTok, Webhook)."""
+    try:
+        results = social_publisher.publish(
+            platforms=req.platforms,
+            reel_data=req.reel,
+            host_url=req.host_url or "http://localhost:8000"
+        )
+        return {
+            "status": "success",
+            "published_platforms": req.platforms,
+            "results": results
+        }
+    except Exception as e:
+        logger.error(f"Error publishing reel: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ==========================================
+# 🎬 AI VIRAL STORY & INTERNET B-ROLL STUDIO API
+# ==========================================
+
+@app.get("/api/broll/presets")
+async def get_broll_presets():
+    """Return viral niche templates and presets."""
+    return {"presets": VIRAL_NICHE_PRESETS}
+
+@app.post("/api/broll/generate-script")
+async def generate_broll_script(req: BRollScriptRequest):
+    """Generate scene-by-scene script breakdown with B-roll search queries."""
+    try:
+        data = viral_story_engine.generate_scene_breakdown(
+            topic=req.topic,
+            niche=req.niche,
+            language=req.language,
+            duration_mode=getattr(req, 'duration_mode', 'long') or 'long',
+            custom_prompt=getattr(req, 'custom_prompt', None),
+            scene_count=getattr(req, 'scene_count', None),
+            api_key=getattr(req, 'api_key', None),
+            ai_provider=getattr(req, 'ai_provider', None)
+        )
+        return {"status": "success", "data": data}
+    except Exception as e:
+        logger.error(f"Error generating broll script: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/broll/search-clips")
+async def search_broll_clips(req: BRollSearchRequest):
+    """Search royalty-free and web video clips for a visual scene query."""
+    try:
+        clips = broll_fetcher.search_clips_for_query(req.query, count=req.count)
+        return {"status": "success", "clips": clips}
+    except Exception as e:
+        logger.error(f"Error searching broll clips: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/broll/voices")
+async def get_broll_voices():
+    """Return available ultra-realistic human neural voices."""
+    return {"voices": voice_engine.get_available_voices()}
+
+def run_broll_pipeline(job_id: str, req: BRollRenderRequest):
+    """Background rendering worker for multi-clip B-roll reel synthesis."""
+    try:
+        jobs_state[job_id] = {
+            "status": "processing",
+            "stage": "scripting",
+            "percent": 15.0,
+            "message": "Validating scene breakdown and generating neural narration..."
+        }
+
+        # 1. Voice generation & Timestamp alignment
+        jobs_state[job_id].update({
+            "stage": "synthesizing",
+            "percent": 35.0,
+            "message": "Generating hyper-realistic neural voiceover with Whisper word alignment..."
+        })
+
+        # 2. B-Roll download & stitching
+        jobs_state[job_id].update({
+            "stage": "broll_fetching",
+            "percent": 55.0,
+            "message": "Searching & downloading high-definition internet B-roll clips for each scene..."
+        })
+
+        # 3. Assemble and render multi-clip master reel
+        jobs_state[job_id].update({
+            "stage": "rendering",
+            "percent": 75.0,
+            "message": "Assembling multi-video 9:16 timeline, adding SFX transitions & burning karaoke captions..."
+        })
+
+        render_res = broll_assembler.assemble_broll_reel(
+            job_id=job_id,
+            scenes=req.scenes,
+            voice_id=req.voice_id,
+            audio_vibe=req.audio_vibe,
+            caption_theme=req.caption_theme,
+            caption_position=req.caption_position,
+            language_mode=req.language_mode,
+            framing_mode=getattr(req, 'framing_mode', 'full_screen') or 'full_screen',
+            elevenlabs_api_key=getattr(req, 'elevenlabs_api_key', None)
+        )
+
+        reel_data = {
+            "id": f"{job_id}_reel_1",
+            "title": req.topic.title(),
+            "hook": req.scenes[0].get("script_hi", "") if req.scenes else "",
+            "virality_score": 98,
+            "duration": render_res["duration"],
+            "video_url": render_res["video_url"],
+            "download_url": render_res["download_url"],
+            "filename": render_res["output_filename"],
+            "hashtags": ["#viral", "#shorts", "#reels", "#untoldtruth", "#documentary"],
+            "social_pack": {
+                "instagram": {
+                    "caption": f"🔥 {req.topic.title()}\n\nWatch till the end for the shocking truth!\n\n#reels #viral #shorts #secrets",
+                    "best_time_to_post": "12:30 PM / 7:30 PM",
+                    "audio_tip": "Use trending suspense sound at 5% volume."
+                },
+                "youtube": {
+                    "title": f"{req.topic.title()} #Shorts",
+                    "description": f"The full breakdown of {req.topic}.\n\nSubscribe for daily deep dives!",
+                    "tags": ["shorts", "documentary", "truth", "viral"]
+                },
+                "facebook": {
+                    "caption": f"Did you know this about {req.topic}? Let us know in the comments!",
+                    "engagement_question": f"What was your reaction to this?"
+                }
+            }
+        }
+
+        # Save to persistent history
+        history_manager.save_job(
+            job_id=job_id,
+            video_meta={
+                "title": req.topic.title(),
+                "author": "AI B-Roll Story Studio",
+                "duration": render_res["duration"],
+                "thumbnail": req.scenes[0].get("selected_clip", {}).get("thumbnail", "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80"),
+                "is_broll_studio": True
+            },
+            reels=[reel_data],
+            mode="broll_story_studio"
+        )
+
+        jobs_state[job_id].update({
+            "status": "completed",
+            "stage": "completed",
+            "percent": 100.0,
+            "message": "AI Viral Story Reel successfully rendered with multi-clip B-roll!",
+            "reels": [reel_data]
+        })
+
+    except Exception as e:
+        logger.error(f"BRoll pipeline error for job {job_id}: {e}", exc_info=True)
+        jobs_state[job_id] = {
+            "status": "error",
+            "percent": 0.0,
+            "message": f"Render failed: {str(e)}",
+            "error": str(e)
+        }
+
+@app.post("/api/broll/render")
+async def render_broll_reel(req: BRollRenderRequest, background_tasks: BackgroundTasks):
+    """Start asynchronous multi-clip B-roll reel synthesis."""
+    if not req.scenes:
+        raise HTTPException(status_code=400, detail="Scenes breakdown cannot be empty")
+
+    job_id = f"broll_{uuid.uuid4().hex[:10]}"
+    jobs_state[job_id] = {
+        "status": "queued",
+        "percent": 5.0,
+        "message": "Queuing B-Roll Story Reel generation..."
+    }
+
+    background_tasks.add_task(run_broll_pipeline, job_id, req)
+    return {"status": "success", "job_id": job_id}
+
+@app.get("/api/broll/progress/{job_id}")
+async def get_broll_progress(job_id: str):
+    """Poll rendering progress for a B-roll studio job."""
+    if job_id not in jobs_state:
+        # Check if saved in history
+        job = history_manager.get_job(job_id)
+        if job:
+            return {"status": "completed", "percent": 100.0, "reels": job.get("reels", [])}
+        raise HTTPException(status_code=404, detail="Job not found")
+    return jobs_state[job_id]
 
 # Mount frontend directory for static UI serving
 FRONTEND_DIR = BASE_DIR / "frontend"

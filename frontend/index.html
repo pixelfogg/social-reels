@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Montserrat:wght@700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body>
     <div class="app-container">
@@ -32,12 +32,21 @@
                 </div>
             </div>
             <div class="nav-actions">
+                <a href="index.html" class="btn-nav active">
+                    <i data-lucide="youtube"></i> YouTube to Reels
+                </a>
+                <a href="broll_studio.html" class="btn-nav btn-nav-highlight">
+                    <i data-lucide="clapperboard"></i> <strong>AI B-Roll Story Studio</strong>
+                </a>
+                <button class="btn-nav btn-nav-highlight" id="btn-open-history" onclick="openHistoryDrawer()">
+                    <i data-lucide="history"></i> <strong>History</strong> <span class="history-count-badge" id="history-badge">0</span>
+                </button>
+                <button class="btn-nav btn-nav-highlight" id="btn-open-socials" onclick="openSocialModal()">
+                    <i data-lucide="share-2"></i> <strong>Connect Socials</strong> <span class="status-dot-mini" id="nav-social-dot"></span>
+                </button>
                 <div class="badge-tag">
                     <span class="pulse-dot"></span> Local AI Fast Engine
                 </div>
-                <a href="#studio-section" class="btn-nav">
-                    <i data-lucide="video"></i> My Studio
-                </a>
             </div>
         </header>
 
@@ -50,8 +59,23 @@
                 Turn Long Videos into <span class="text-gradient">Viral 9:16 Reels</span> with Animated Captions
             </h1>
             <p class="hero-subtitle">
-                Automated word-by-word karaoke pop subtitles, smart speaker face reframing, and AI viral hook discovery — all in seconds.
+                Automated word-by-word karaoke pop subtitles, smart speaker face reframing, AI viral hook discovery & 1-click social media syndication.
             </p>
+
+            <!-- Quick Action Shortcuts Bar -->
+            <div class="quick-feature-bar">
+                <button class="quick-feature-btn" onclick="openHistoryDrawer()">
+                    <i data-lucide="history"></i>
+                    <span>📜 Video History & Cached Reels</span>
+                </button>
+                <button class="quick-feature-btn" onclick="openSocialModal()">
+                    <i data-lucide="share-2"></i>
+                    <span>🚀 1-Click Social Accounts Hub</span>
+                </button>
+                <div class="quick-feature-tag">
+                    <i data-lucide="music-2"></i> 5 Audio Vibes & 6 Story Modes Active
+                </div>
+            </div>
 
             <!-- Main Input Card -->
             <div class="input-card glass-panel">
@@ -128,6 +152,18 @@
 
                 <!-- Studio Generation Configuration -->
                 <div class="config-grid">
+                    <!-- Audio Vibe & Background Style -->
+                    <div class="config-item">
+                        <label><i data-lucide="music-2"></i> Audio Vibe & Background Music</label>
+                        <select id="config-audio-vibe" class="select-styled">
+                            <option value="mystery_suspense" selected>🕵️‍♂️ Dark Mystery & Suspense (Intense Drone)</option>
+                            <option value="phonk_cyberpunk">⚡ Cyberpunk & Phonk Energy (Fast Bass Pulse)</option>
+                            <option value="cinematic_hype">🔥 Cinematic Action & Drama (Epic Pad)</option>
+                            <option value="lofi_chill">☕ Smooth Lo-Fi & Narrative (Chill Groove)</option>
+                            <option value="original_authentic">🎙️ Pure Authentic Creator Audio (No BGM)</option>
+                        </select>
+                    </div>
+
                     <!-- Transformative Specific Controls -->
                     <div class="config-item" id="item-voice-selector">
                         <label><i data-lucide="mic"></i> Hindi AI Voice</label>
@@ -140,11 +176,14 @@
                     </div>
 
                     <div class="config-item" id="item-story-style">
-                        <label><i data-lucide="sparkles"></i> Hindi Narrative Style</label>
+                        <label><i data-lucide="sparkles"></i> Narrative Story Style</label>
                         <select id="config-story-style" class="select-styled">
-                            <option value="untold_story" selected>🔥 रहस्यमयी कहानी (The Untold Story)</option>
-                            <option value="masterclass">💡 1 मिनट मास्टरक्लास (Masterclass Lesson)</option>
-                            <option value="costly_mistake">⚠️ 99% लोग यह गलती करते हैं (Costly Mistake)</option>
+                            <option value="viral_mystery" selected>🕵️‍♂️ रहस्य और अनसुने सच (Viral Mystery & Truth)</option>
+                            <option value="hot_takes_debate">🎙️ कड़वा सच और बहस (Hot Takes & Debate)</option>
+                            <option value="tech_breakthrough">🧠 माइंड-ब्लोइंग तकनीक और AI (Tech Breakthrough)</option>
+                            <option value="wealth_secrets">💰 करोड़ों का खेल और दौलत (Wealth Secrets)</option>
+                            <option value="action_story">⚡ रोमांचक टर्निंग पॉइंट (High-Stakes Turning Point)</option>
+                            <option value="masterclass">💡 1 मिनट का सटीक सबक (1-Min Masterclass)</option>
                         </select>
                     </div>
 
@@ -391,12 +430,188 @@
                                         <i data-lucide="copy"></i> Copy <span id="copy-btn-platform-label">Instagram</span> Post & Hashtags
                                     </button>
                                 </div>
+
+                                <!-- 🚀 1-Click Direct Social Publishing -->
+                                <div class="direct-publish-panel">
+                                    <div class="direct-publish-header">
+                                        <span class="direct-publish-title"><i data-lucide="send"></i> 1-Click Direct Push to Social Media</span>
+                                        <button class="btn-text-link" onclick="openSocialModal()"><i data-lucide="settings"></i> Manage Accounts</button>
+                                    </div>
+                                    <div class="platform-checkbox-row">
+                                        <label class="platform-check-item">
+                                            <input type="checkbox" id="pub-check-ig" checked>
+                                            <span class="check-box-label">📸 Instagram Reels</span>
+                                        </label>
+                                        <label class="platform-check-item">
+                                            <input type="checkbox" id="pub-check-yt" checked>
+                                            <span class="check-box-label">🔴 YouTube Shorts</span>
+                                        </label>
+                                        <label class="platform-check-item">
+                                            <input type="checkbox" id="pub-check-tw">
+                                            <span class="check-box-label">🐦 X (Twitter)</span>
+                                        </label>
+                                        <label class="platform-check-item">
+                                            <input type="checkbox" id="pub-check-tt">
+                                            <span class="check-box-label">🎵 TikTok</span>
+                                        </label>
+                                        <label class="platform-check-item">
+                                            <input type="checkbox" id="pub-check-hook">
+                                            <span class="check-box-label">🌐 Webhook / Zapier</span>
+                                        </label>
+                                    </div>
+                                    <button class="btn-publish-now" id="btn-publish-now" onclick="publishActiveReelToSocial()">
+                                        <span class="btn-content">
+                                            <i data-lucide="zap"></i> Publish Selected Video Now
+                                        </span>
+                                    </button>
+                                    <div id="publish-result-toast" class="publish-result-toast hidden"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+
+        <!-- Video Processing History Drawer Modal -->
+        <div class="drawer-overlay hidden" id="history-overlay" onclick="closeHistoryDrawer()"></div>
+        <div class="history-drawer hidden" id="history-drawer">
+            <div class="drawer-header">
+                <div class="drawer-title-box">
+                    <i data-lucide="history"></i>
+                    <h3>Processed Video History</h3>
+                </div>
+                <button class="btn-close-drawer" onclick="closeHistoryDrawer()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="drawer-body">
+                <p class="drawer-sub">All previously processed videos & reels cached for instant access.</p>
+                <div class="history-list" id="history-list-container">
+                    <!-- History cards injected via JS -->
+                    <div class="history-empty">
+                        <i data-lucide="film"></i>
+                        <p>No processed videos yet. Generate your first reel to see it here!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Social Media Accounts Integration Modal -->
+        <div class="modal-overlay hidden" id="social-modal-overlay" onclick="closeSocialModal()"></div>
+        <div class="social-modal glass-panel hidden" id="social-modal">
+            <div class="modal-header">
+                <div class="modal-title-box">
+                    <i data-lucide="share-2"></i>
+                    <div>
+                        <h3>Connect Real Social Accounts</h3>
+                        <p class="modal-subtitle">Configure API keys & tokens for instant 1-click publishing.</p>
+                    </div>
+                </div>
+                <button class="btn-close-modal" onclick="closeSocialModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="social-account-cards">
+                    <!-- Instagram -->
+                    <div class="social-card">
+                        <div class="social-card-header">
+                            <div class="social-brand">
+                                <span class="social-icon-box ig">📸</span>
+                                <div>
+                                    <h4 class="social-name">Instagram Reels</h4>
+                                    <span class="social-status-badge" id="badge-status-ig">⚪ Not Connected</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="social-fields">
+                            <div class="field-group">
+                                <label>Instagram Business User ID</label>
+                                <input type="text" id="acc-ig-user-id" placeholder="e.g. 17841400000000000">
+                            </div>
+                            <div class="field-group">
+                                <label>Meta Graph User Access Token</label>
+                                <input type="password" id="acc-ig-token" placeholder="EAAB...">
+                            </div>
+                            <div class="social-card-actions">
+                                <button class="btn-save-acc" onclick="saveSocialAccount('instagram')"><i data-lucide="check"></i> Save Instagram</button>
+                                <button class="btn-disconnect-acc" onclick="disconnectSocialAccount('instagram')">Disconnect</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- YouTube Shorts -->
+                    <div class="social-card">
+                        <div class="social-card-header">
+                            <div class="social-brand">
+                                <span class="social-icon-box yt">🔴</span>
+                                <div>
+                                    <h4 class="social-name">YouTube Shorts</h4>
+                                    <span class="social-status-badge" id="badge-status-yt">⚪ Not Connected</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="social-fields">
+                            <div class="field-group">
+                                <label>YouTube OAuth / API Access Token</label>
+                                <input type="password" id="acc-yt-token" placeholder="ya29.a0...">
+                            </div>
+                            <div class="social-card-actions">
+                                <button class="btn-save-acc" onclick="saveSocialAccount('youtube')"><i data-lucide="check"></i> Save YouTube</button>
+                                <button class="btn-disconnect-acc" onclick="disconnectSocialAccount('youtube')">Disconnect</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Twitter / X -->
+                    <div class="social-card">
+                        <div class="social-card-header">
+                            <div class="social-brand">
+                                <span class="social-icon-box tw">🐦</span>
+                                <div>
+                                    <h4 class="social-name">X (Twitter)</h4>
+                                    <span class="social-status-badge" id="badge-status-twitter">⚪ Not Connected</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="social-fields">
+                            <div class="field-group">
+                                <label>Bearer Token / User Token</label>
+                                <input type="password" id="acc-tw-token" placeholder="AAAAAAAAAAAAAAAAAAAAA...">
+                            </div>
+                            <div class="social-card-actions">
+                                <button class="btn-save-acc" onclick="saveSocialAccount('twitter')"><i data-lucide="check"></i> Save X Account</button>
+                                <button class="btn-disconnect-acc" onclick="disconnectSocialAccount('twitter')">Disconnect</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Webhook / Zapier / Make -->
+                    <div class="social-card">
+                        <div class="social-card-header">
+                            <div class="social-brand">
+                                <span class="social-icon-box zap">🌐</span>
+                                <div>
+                                    <h4 class="social-name">Webhook (Zapier / Make.com / Custom)</h4>
+                                    <span class="social-status-badge" id="badge-status-webhook">⚪ Not Connected</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="social-fields">
+                            <div class="field-group">
+                                <label>Webhook Target URL</label>
+                                <input type="url" id="acc-webhook-url" placeholder="https://hooks.zapier.com/hooks/catch/...">
+                            </div>
+                            <div class="social-card-actions">
+                                <button class="btn-save-acc" onclick="saveSocialAccount('webhook')"><i data-lucide="check"></i> Save Webhook</button>
+                                <button class="btn-disconnect-acc" onclick="disconnectSocialAccount('webhook')">Disconnect</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Footer -->
         <footer class="footer">
@@ -405,7 +620,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/app.js"></script>
+    <script src="js/app.js?v=4"></script>
     <script>
         // Initialize Lucide Icons
         lucide.createIcons();

@@ -6,6 +6,7 @@ from typing import List, Dict, Any, Optional
 from backend.config import TEMP_DIR, OUTPUTS_DIR, FFMPEG_PATH
 from backend.caption_engine import CaptionEngine
 from backend.stock_fetcher import StockFetcher
+from backend.audio_vibes import AudioVibeEngine
 
 logger = logging.getLogger("videogen.transformative_processor")
 
@@ -13,23 +14,7 @@ class TransformativeProcessor:
     def __init__(self):
         self.caption_engine = CaptionEngine()
         self.stock_fetcher = StockFetcher()
-
-    def _generate_background_music(self, duration: float, output_path: str) -> str:
-        """Synthesize a subtle ambient electronic chord track using FFmpeg filters."""
-        cmd = [
-            FFMPEG_PATH, "-y",
-            "-f", "lavfi",
-            "-i", f"anoisesrc=d={duration}:c=pink:r=44100:a=0.015",
-            "-f", "lavfi",
-            "-i", f"sine=frequency=220:duration={duration}",
-            "-filter_complex", "[0:a][1:a]amix=inputs=2:weights=0.3 0.08,lowpass=f=1200,volume=0.3[aout]",
-            "-map", "[aout]",
-            "-c:a", "aac",
-            "-b:a", "128k",
-            output_path
-        ]
-        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        return output_path
+        self.audio_vibe_engine = AudioVibeEngine()
 
     def render_transformative_short(
         self,
@@ -39,7 +24,8 @@ class TransformativeProcessor:
         output_clip_path: str,
         theme_name: str = "hormozi",
         caption_position: str = "bottom",
-        source_duration: float = 60.0
+        source_duration: float = 60.0,
+        audio_vibe: str = "mystery_suspense"
     ) -> str:
         """
         Assemble a 100% original, copyright-safe 9:16 short:
@@ -118,36 +104,60 @@ class TransformativeProcessor:
         ]
         subprocess.run(cmd_concat, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        # 4. Generate ambient background music track
+        # 4. Generate ambient background music track if enabled
         bgm_path = str(TEMP_DIR / f"{Path(output_clip_path).stem}_bgm.aac")
-        self._generate_background_music(total_duration, bgm_path)
+        vibe_info = self.audio_vibe_engine.get_vibe(audio_vibe)
+        has_bgm = self.audio_vibe_engine.generate_background_track(audio_vibe, total_duration, bgm_path) is not None
+        bgm_vol = vibe_info.get("bgm_volume", 0.15)
 
-        # 5. Final Assembly: Burn subtitles + Mix narration (100%) and ambient music (12%)
+        # 5. Final Assembly: Burn subtitles + Mix narration & ambient music
         escaped_ass = ass_path.replace("\\", "/").replace(":", "\\:")
         
-        cmd_final = [
-            FFMPEG_PATH, "-y",
-            "-i", temp_visual_concat,
-            "-i", narration_audio,
-            "-i", bgm_path,
-            "-filter_complex",
-            f"[0:v]ass='{escaped_ass}'[outv];"
-            f"[1:a]volume=1.0[voice];"
-            f"[2:a]volume=0.15[bgm];"
-            f"[voice][bgm]amix=inputs=2:duration=first:dropout_transition=2[outa]",
-            "-map", "[outv]",
-            "-map", "[outa]",
-            "-t", str(round(total_duration, 2)),
-            "-c:v", "libx264",
-            "-preset", "veryfast",
-            "-crf", "20",
-            "-pix_fmt", "yuv420p",
-            "-c:a", "aac",
-            "-b:a", "192k",
-            "-ar", "44100",
-            "-movflags", "+faststart",
-            output_clip_path
-        ]
+        if has_bgm and os.path.exists(bgm_path):
+            cmd_final = [
+                FFMPEG_PATH, "-y",
+                "-i", temp_visual_concat,
+                "-i", narration_audio,
+                "-i", bgm_path,
+                "-filter_complex",
+                f"[0:v]ass='{escaped_ass}'[outv];"
+                f"[1:a]volume=1.0[voice];"
+                f"[2:a]volume={bgm_vol}[bgm];"
+                f"[voice][bgm]amix=inputs=2:duration=first:dropout_transition=2[outa]",
+                "-map", "[outv]",
+                "-map", "[outa]",
+                "-t", str(round(total_duration, 2)),
+                "-c:v", "libx264",
+                "-preset", "veryfast",
+                "-crf", "20",
+                "-pix_fmt", "yuv420p",
+                "-c:a", "aac",
+                "-b:a", "192k",
+                "-ar", "44100",
+                "-movflags", "+faststart",
+                output_clip_path
+            ]
+        else:
+            cmd_final = [
+                FFMPEG_PATH, "-y",
+                "-i", temp_visual_concat,
+                "-i", narration_audio,
+                "-filter_complex",
+                f"[0:v]ass='{escaped_ass}'[outv];"
+                f"[1:a]volume=1.0[outa]",
+                "-map", "[outv]",
+                "-map", "[outa]",
+                "-t", str(round(total_duration, 2)),
+                "-c:v", "libx264",
+                "-preset", "veryfast",
+                "-crf", "20",
+                "-pix_fmt", "yuv420p",
+                "-c:a", "aac",
+                "-b:a", "192k",
+                "-ar", "44100",
+                "-movflags", "+faststart",
+                output_clip_path
+            ]
 
         logger.info(f"Rendering Transformative Short: {' '.join(cmd_final)}")
         res = subprocess.run(cmd_final, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -159,7 +169,8 @@ class TransformativeProcessor:
         try:
             os.remove(concat_list_path)
             os.remove(temp_visual_concat)
-            os.remove(bgm_path)
+            if os.path.exists(bgm_path):
+                os.remove(bgm_path)
             for s in slice_files:
                 if os.path.exists(s):
                     os.remove(s)

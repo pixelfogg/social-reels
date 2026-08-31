@@ -137,7 +137,8 @@ async function startGeneration() {
     const position = document.getElementById('config-position')?.value || 'bottom';
     const analysisRangeVal = parseFloat(document.getElementById('config-analysis-range')?.value || 0);
     const voiceId = document.getElementById('config-voice')?.value || 'hi-IN-MadhurNeural';
-    const storyStyle = document.getElementById('config-story-style')?.value || 'untold_story';
+    const storyStyle = document.getElementById('config-story-style')?.value || 'viral_mystery';
+    const audioVibe = document.getElementById('config-audio-vibe')?.value || 'mystery_suspense';
 
     if (currentInputMode === 'youtube' && !url) {
         alert('Please enter a valid YouTube video URL or select a demo sample.');
@@ -160,13 +161,14 @@ async function startGeneration() {
 
     const payload = {
         mode: currentStudioMode,
-        voice_id: voiceId,
-        story_style: storyStyle,
         num_reels: numReels,
-        max_analysis_duration: analysisRangeVal > 0 ? analysisRangeVal : null,
-        layout_mode: 'blur_canvas',
         caption_theme: theme,
         caption_position: position,
+        voice_id: voiceId,
+        story_style: storyStyle,
+        audio_vibe: audioVibe,
+        max_analysis_duration: analysisRangeVal > 0 ? analysisRangeVal : null,
+        layout_mode: 'blur_canvas',
         enable_emojis: true
     };
 
@@ -278,6 +280,9 @@ function onGenerationComplete(data) {
     document.getElementById('studio-section').classList.remove('hidden');
     window.location.hash = 'studio-section';
     lucide.createIcons();
+
+    // Refresh history badge
+    updateHistoryBadge();
 }
 
 function resetGenerateBtn() {
@@ -297,17 +302,18 @@ function renderReelsGrid(reels) {
         card.className = `reel-card ${index === activeReelIndex ? 'active' : ''}`;
         card.onclick = () => selectReel(index);
 
-        const tagsHtml = (reel.hashtags || []).map(t => `<span class="reel-tag">${t}</span>`).join('');
-
         card.innerHTML = `
-            <div class="reel-card-header">
-                <span class="virality-chip">🔥 ${reel.virality_score}/100 Virality</span>
-                <span class="duration-chip"><i data-lucide="clock" style="width:12px;display:inline;"></i> ${Math.round(reel.duration)}s</span>
+            <div class="reel-card-thumb">
+                <span class="reel-number">#${index + 1}</span>
+                <div class="virality-tag">🔥 ${reel.virality_score || 95}</div>
             </div>
-            <h4 class="reel-card-title">${reel.title}</h4>
-            <p class="reel-card-hook">${reel.hook || reel.text.slice(0, 80) + '...'}</p>
-            <div class="reel-card-tags">
-                ${tagsHtml}
+            <div class="reel-card-content">
+                <h5 class="reel-card-title">${reel.title}</h5>
+                <p class="reel-card-hook">"${reel.hook || ''}"</p>
+                <div class="reel-card-meta">
+                    <span><i data-lucide="clock"></i> ${Math.round(reel.duration || 0)}s</span>
+                    <span><i data-lucide="sparkles"></i> 9:16</span>
+                </div>
             </div>
         `;
         container.appendChild(card);
@@ -318,13 +324,13 @@ function renderReelsGrid(reels) {
 
 let currentSocialPlatform = 'instagram';
 
-// Select Active Reel for Studio Preview & Editing
+// Select Reel to preview & edit
 function selectReel(index) {
+    if (index < 0 || index >= currentReelsData.length) return;
     activeReelIndex = index;
     const reel = currentReelsData[index];
-    if (!reel) return;
 
-    // Highlight card
+    // Highlight active card
     const cards = document.querySelectorAll('.reel-card');
     cards.forEach((c, idx) => {
         if (idx === index) c.classList.add('active');
@@ -332,25 +338,27 @@ function selectReel(index) {
     });
 
     // Update Player & Header
-    const videoElem = document.getElementById('main-reel-video');
-    videoElem.src = reel.video_url;
-    videoElem.load();
-    videoElem.play().catch(() => {});
+    const video = document.getElementById('main-reel-video');
+    video.src = reel.video_url;
+    video.load();
 
     document.getElementById('active-clip-title').textContent = reel.title;
-    document.getElementById('active-virality-chip').textContent = `🔥 ${reel.virality_score}/100 Viral Score`;
+    document.getElementById('active-virality-chip').textContent = `🔥 ${reel.virality_score || 95}/100 Viral Score`;
     document.getElementById('btn-direct-download').href = reel.download_url;
 
-    // Update Customizer Inputs
-    document.getElementById('edit-start-time').value = reel.start_time;
-    document.getElementById('edit-end-time').value = reel.end_time;
-    document.getElementById('edit-theme').value = reel.caption_theme || 'hormozi';
-    document.getElementById('edit-layout').value = reel.layout_mode || 'blur_canvas';
-    document.getElementById('edit-position').value = reel.caption_position || 'bottom';
+    // Populate live trimmer inputs
+    document.getElementById('edit-start-time').value = reel.start_time || 0;
+    document.getElementById('edit-end-time').value = reel.end_time || reel.duration || 30;
+    if (reel.caption_theme) document.getElementById('edit-theme').value = reel.caption_theme;
+    if (reel.layout_mode) document.getElementById('edit-layout').value = reel.layout_mode;
+    if (reel.caption_position) document.getElementById('edit-position').value = reel.caption_position;
+
+    // Reset publish toast
+    const toast = document.getElementById('publish-result-toast');
+    if (toast) toast.classList.add('hidden');
 
     // Update Social Posting Dashboard
     updateSocialPreview(reel);
-
     lucide.createIcons();
 }
 
@@ -477,3 +485,292 @@ function resetStudio() {
     document.getElementById('progress-section').classList.add('hidden');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// ==========================================
+// 📜 PROCESSED VIDEO HISTORY MODULE
+// ==========================================
+
+async function openHistoryDrawer() {
+    const drawer = document.getElementById('history-drawer');
+    const overlay = document.getElementById('history-overlay');
+    drawer.classList.remove('hidden');
+    overlay.classList.remove('hidden');
+
+    const container = document.getElementById('history-list-container');
+    container.innerHTML = `<div class="history-empty"><i data-lucide="loader-2" class="spin"></i><p>Loading your history...</p></div>`;
+    lucide.createIcons();
+
+    try {
+        const res = await fetch('/api/history');
+        const data = await res.json();
+        const items = data.history || [];
+
+        if (items.length === 0) {
+            container.innerHTML = `
+                <div class="history-empty">
+                    <i data-lucide="film"></i>
+                    <p>No processed videos yet. Generate your first reel to see it here!</p>
+                </div>`;
+        } else {
+            container.innerHTML = '';
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'history-card';
+                const thumb = item.thumbnail || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=60';
+                
+                card.innerHTML = `
+                    <img src="${thumb}" class="history-thumb" alt="Thumbnail" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=60'">
+                    <div class="history-card-info" onclick="loadHistoryJob('${item.job_id}')">
+                        <div class="history-card-title">${item.title}</div>
+                        <div class="history-card-meta">
+                            <span>📅 ${item.created_at || 'Recently'}</span>
+                            <span>⏱️ ${Math.round(item.duration || 0)}s</span>
+                        </div>
+                        <span class="history-reels-count">🎬 ${item.reels_count} Reels Generated</span>
+                    </div>
+                    <button class="history-card-del" title="Delete from history" onclick="deleteHistoryJob(event, '${item.job_id}')">
+                        <i data-lucide="trash-2"></i>
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+    } catch (err) {
+        container.innerHTML = `<div class="history-empty"><p>Error loading history: ${err.message}</p></div>`;
+    }
+    lucide.createIcons();
+}
+
+function closeHistoryDrawer() {
+    document.getElementById('history-drawer').classList.add('hidden');
+    document.getElementById('history-overlay').classList.add('hidden');
+}
+
+async function loadHistoryJob(jobId) {
+    closeHistoryDrawer();
+    try {
+        const res = await fetch(`/api/history/${jobId}`);
+        const data = await res.json();
+        if (res.ok && data.status === 'success') {
+            const job = data.job;
+            currentJobId = job.job_id;
+            currentReelsData = job.reels || [];
+
+            if (currentReelsData.length > 0) {
+                renderReelsGrid(currentReelsData);
+                selectReel(0);
+                document.getElementById('progress-section').classList.add('hidden');
+                document.getElementById('studio-section').classList.remove('hidden');
+                window.location.hash = 'studio-section';
+            } else {
+                alert('No reels found for this history item.');
+            }
+        } else {
+            alert(`Could not load job: ${data.detail || 'Error'}`);
+        }
+    } catch (err) {
+        alert(`Failed to load history job: ${err.message}`);
+    }
+}
+
+async function deleteHistoryJob(event, jobId) {
+    event.stopPropagation();
+    if (!confirm('Are you sure you want to delete this video from history?')) return;
+
+    try {
+        const res = await fetch(`/api/history/${jobId}`, { method: 'DELETE' });
+        if (res.ok) {
+            openHistoryDrawer();
+            updateHistoryBadge();
+        }
+    } catch (err) {
+        alert(`Delete failed: ${err.message}`);
+    }
+}
+
+async function updateHistoryBadge() {
+    try {
+        const res = await fetch('/api/history');
+        const data = await res.json();
+        const count = (data.history || []).length;
+        const badge = document.getElementById('history-badge');
+        if (badge) badge.textContent = count;
+    } catch (err) {
+        console.warn('Could not update history badge:', err);
+    }
+}
+
+// ==========================================
+// 🚀 SOCIAL ACCOUNTS & 1-CLICK PUBLISHING
+// ==========================================
+
+async function openSocialModal() {
+    const modal = document.getElementById('social-modal');
+    const overlay = document.getElementById('social-modal-overlay');
+    modal.classList.remove('hidden');
+    overlay.classList.remove('hidden');
+
+    try {
+        const res = await fetch('/api/social/accounts');
+        const data = await res.json();
+        const accs = data.accounts || {};
+
+        // Update badges & populate fields if available
+        for (const [plat, conf] of Object.entries(accs)) {
+            const badge = document.getElementById(`badge-status-${plat}`);
+            if (badge) {
+                if (conf.connected) {
+                    badge.textContent = `🟢 Connected (${conf.account_name || 'Active'})`;
+                    badge.classList.add('connected');
+                } else {
+                    badge.textContent = `⚪ Not Connected`;
+                    badge.classList.remove('connected');
+                }
+            }
+            if (plat === 'webhook' && conf.webhook_url) {
+                const inp = document.getElementById('acc-webhook-url');
+                if (inp) inp.value = conf.webhook_url;
+            }
+        }
+    } catch (err) {
+        console.warn('Error loading social accounts:', err);
+    }
+    lucide.createIcons();
+}
+
+function closeSocialModal() {
+    document.getElementById('social-modal').classList.add('hidden');
+    document.getElementById('social-modal-overlay').classList.add('hidden');
+}
+
+async function saveSocialAccount(platform) {
+    let creds = {};
+    if (platform === 'instagram') {
+        creds.ig_user_id = document.getElementById('acc-ig-user-id')?.value.trim();
+        creds.access_token = document.getElementById('acc-ig-token')?.value.trim();
+    } else if (platform === 'youtube') {
+        creds.access_token = document.getElementById('acc-yt-token')?.value.trim();
+    } else if (platform === 'twitter') {
+        creds.bearer_token = document.getElementById('acc-tw-token')?.value.trim();
+    } else if (platform === 'webhook') {
+        creds.webhook_url = document.getElementById('acc-webhook-url')?.value.trim();
+    }
+
+    try {
+        const res = await fetch('/api/social/accounts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ platform, credentials: creds })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(`✅ ${platform.toUpperCase()} account settings saved successfully!`);
+            openSocialModal();
+            updateSocialNavStatus();
+        } else {
+            alert(`Save failed: ${data.detail || 'Error'}`);
+        }
+    } catch (err) {
+        alert(`Error saving credentials: ${err.message}`);
+    }
+}
+
+async function disconnectSocialAccount(platform) {
+    try {
+        const res = await fetch('/api/social/disconnect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ platform })
+        });
+        if (res.ok) {
+            openSocialModal();
+            updateSocialNavStatus();
+        }
+    } catch (err) {
+        alert(`Disconnect failed: ${err.message}`);
+    }
+}
+
+async function updateSocialNavStatus() {
+    try {
+        const res = await fetch('/api/social/accounts');
+        const data = await res.json();
+        const accs = data.accounts || {};
+        const anyConnected = Object.values(accs).some(a => a.connected);
+        const dot = document.getElementById('nav-social-dot');
+        if (dot) {
+            dot.style.background = anyConnected ? '#10b981' : '#6b7280';
+            dot.style.boxShadow = anyConnected ? '0 0 6px #10b981' : 'none';
+        }
+    } catch (err) {
+        console.warn('Could not update social nav status:', err);
+    }
+}
+
+// 1-Click Multi-Platform Reel Publishing
+async function publishActiveReelToSocial() {
+    const reel = currentReelsData[activeReelIndex];
+    if (!reel) {
+        alert('Please select a reel first.');
+        return;
+    }
+
+    const selectedPlatforms = [];
+    if (document.getElementById('pub-check-ig')?.checked) selectedPlatforms.push('instagram');
+    if (document.getElementById('pub-check-yt')?.checked) selectedPlatforms.push('youtube');
+    if (document.getElementById('pub-check-tw')?.checked) selectedPlatforms.push('twitter');
+    if (document.getElementById('pub-check-tt')?.checked) selectedPlatforms.push('tiktok');
+    if (document.getElementById('pub-check-hook')?.checked) selectedPlatforms.push('webhook');
+
+    if (selectedPlatforms.length === 0) {
+        alert('Please select at least one social media platform checkbox.');
+        return;
+    }
+
+    const btn = document.getElementById('btn-publish-now');
+    const toast = document.getElementById('publish-result-toast');
+    btn.disabled = true;
+    btn.innerHTML = `<span class="btn-content"><i data-lucide="loader-2" class="spin"></i> Publishing to ${selectedPlatforms.length} Platform(s)...</span>`;
+    lucide.createIcons();
+
+    toast.classList.remove('hidden');
+    toast.innerHTML = `<i data-lucide="loader-2" class="spin"></i> Uploading video and syndicating to social feeds...`;
+    lucide.createIcons();
+
+    try {
+        const res = await fetch('/api/social/publish', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                platforms: selectedPlatforms,
+                reel: reel,
+                host_url: window.location.origin
+            })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.status === 'success') {
+            const results = data.results || {};
+            let htmlMsg = `<div style="font-weight:700; margin-bottom:4px;">🚀 1-Click Publishing Complete:</div>`;
+            for (const [plat, r] of Object.entries(results)) {
+                const icon = r.status === 'success' ? '✅' : (r.status === 'warning' ? '⚠️' : '❌');
+                htmlMsg += `<div>${icon} <strong>${r.platform || plat}:</strong> ${r.message}</div>`;
+            }
+            toast.innerHTML = htmlMsg;
+        } else {
+            toast.innerHTML = `❌ Publishing failed: ${data.detail || 'Error'}`;
+        }
+    } catch (err) {
+        toast.innerHTML = `❌ Publishing error: ${err.message}`;
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span class="btn-content"><i data-lucide="zap"></i> Publish Selected Video Now</span>`;
+        lucide.createIcons();
+    }
+}
+
+// Initial Window Load
+window.addEventListener('DOMContentLoaded', () => {
+    updateHistoryBadge();
+    updateSocialNavStatus();
+});

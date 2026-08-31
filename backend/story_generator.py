@@ -64,60 +64,118 @@ class StoryGenerator:
 
         stories = []
 
-        # Story Style 1: रहस्यमयी कहानी (The Untold Story)
+        # Story Style 1: 🕵️‍♂️ रहस्य और अनसुने सच (Viral Mystery & Untold Story)
         story_1_script = (
-            f"क्या आप जानते हैं कि {entity} की असली सफलता का रहस्य क्या था? "
-            f"{year} में जब पूरी दुनिया सोच रही थी कि सब कुछ खत्म हो गया है, "
-            f"तब एक ऐसा मास्टरप्लान बनाया गया जिसने पूरे खेल को बदल दिया। "
-            f"लोग सिर्फ उनकी कामयाबी देखते हैं, लेकिन इसके पीछे के संघर्ष और गुप्त रणनीति को बहुत कम लोग जानते हैं। "
-            f"असली सबक यह है कि जब भी परिस्थितियां आपके खिलाफ हों, तो हार मानने के बजाय अपना नजरिया बदलें। "
+            f"क्या आप जानते हैं कि {entity} के इस किस्से के पीछे का असली सच क्या है? "
+            f"{year} में जब सब सोच रहे थे कि सब कुछ सामान्य है, "
+            f"तब परदे के पीछे एक ऐसा गुप्त फैसला लिया गया जिसने इतिहास बदल कर रख दिया। "
+            f"ज्यादातर लोग सिर्फ ऊपरी चमक-दमक देखते हैं, लेकिन जो रहस्य दबा रह गया वह रोंगटे खड़े कर देने वाला है। "
+            f"असली सच्चाई हमेशा आपकी सोच से कहीं ज्यादा गहरी होती है। "
             f"{random.choice(HINDI_CTAS)}"
         )
         stories.append({
             "id": "story_1",
-            "style": "untold_story",
-            "title": f"{entity} का सबसे बड़ा रहस्य 🔥",
-            "hook": "क्या आप जानते हैं इसके पीछे का असली सच? 🤯",
+            "style": "viral_mystery",
+            "title": f"{entity} का अनसुना काला सच 🕵️‍♂️",
+            "hook": "यह सच्चाई जानकर आपके रोंगटे खड़े हो जाएंगे 🤯",
             "script": story_1_script,
-            "visual_keywords": [f"{entity} portrait", "secret plan whiteboard", "struggle dark room", "success victory crowd", "motivation spark"],
+            "visual_keywords": [f"{entity} portrait", "secret classified files", "dark investigation room", "shocked crowd", "mystery revelation"],
             "language": "hi"
         })
 
-        # Story Style 2: 1 मिनट की मास्टरक्लास (1-Minute Masterclass)
+        # Story Style 2: 🎙️ कड़वा सच और बहस (Hot Takes & Controversial Debate)
         story_2_script = (
-            f"अगर आप जीवन में कुछ बड़ा हासिल करना चाहते हैं, तो {entity} का यह 1 नियम हमेशा याद रखें। "
-            f"अधिकांश लोग अपनी 90% ऊर्जा उन चीजों पर बर्बाद करते हैं जो उनके नियंत्रण में नहीं होतीं। "
-            f"लेकिन असली लीडर्स सिर्फ अपने फोकस और अनुशासन पर काम करते हैं। "
-            f"जब आप अपने लक्ष्य के प्रति 100% समर्पित हो जाते हैं, तो असफलता भी आपके लिए एक नया अवसर बन जाती है। "
-            f"इस बात को हमेशा गांठ बांध लें। {random.choice(HINDI_CTAS)}"
+            f"यह एक ऐसी बात है जिसे कोई भी खुलकर स्वीकार नहीं करना चाहता। "
+            f"{entity} ने जिस रास्ते को चुना, आज के 90% तथाकथित विशेषज्ञ उसे गलत बताते हैं। "
+            f"लेकिन हकीकत यह है कि नियमों को तोड़े बिना कभी कोई नया साम्राज्य नहीं खड़ा हुआ। "
+            f"अगर आप हर किसी को खुश करने की कोशिश करेंगे, तो अंत में आप खुद की पहचान खो देंगे। "
+            f"क्या आप इस कड़वे सच को मानने की हिम्मत रखते हैं? {random.choice(HINDI_CTAS)}"
         )
         stories.append({
             "id": "story_2",
-            "style": "masterclass",
-            "title": f"1 मिनट में जीवन बदलने वाला नियम 💡",
-            "hook": "यह 1 नियम आपका नजरिया बदल देगा 🚀",
+            "style": "hot_takes_debate",
+            "title": f"यह कड़वा सच कोई नहीं बताएगा 🎙️",
+            "hook": "99% लोग इस बात को मानने से डरते हैं 🔥",
             "script": story_2_script,
+            "visual_keywords": ["podcast mic close up", "intense debate stage", "breaking rules rebellion", "confident leader", "fire explosion"],
+            "language": "hi"
+        })
+
+        # Story Style 3: 🧠 माइंड-ब्लोइंग तकनीक और भविष्य (Tech & AI Breakthrough)
+        story_3_script = (
+            f"आने वाले कुछ ही सालों में हमारी पूरी दुनिया हमेशा के लिए बदलने वाली है। "
+            f"{entity} ने जिस क्रांति की शुरुआत की, वह आज टेक्नोलॉजी का सबसे बड़ा टर्निंग पॉइंट बन चुकी है। "
+            f"जो लोग आज इस तकनीक को समझकर अपना लेंगे, वे कल की दुनिया पर राज करेंगे। "
+            f"और जो इसे नजरअंदाज करेंगे, वे इतिहास के पन्नों में खो जाएंगे। "
+            f"भविष्य का हिस्सा बनिए, दर्शक मत बने रहिए। {random.choice(HINDI_CTAS)}"
+        )
+        stories.append({
+            "id": "story_3",
+            "style": "tech_breakthrough",
+            "title": f"भविष्य की तकनीक जिसने सब हिला दिया 🧠",
+            "hook": "अगले 2 सालों में यह सब कुछ बदल देगा ⚡",
+            "script": story_3_script,
+            "visual_keywords": ["cyberpunk hologram AI", "futuristic glowing circuit", "supercomputer data stream", "laser neural network", "space exploration"],
+            "language": "hi"
+        })
+
+        # Story Style 4: 💰 करोड़ों का खेल (Wealth, Power & Money Secrets)
+        story_4_script = (
+            f"अमीरों और गरीबों के बीच केवल एक बुनियादी सोच का फर्क होता है। "
+            f"{year} में {entity} के पास खोने के लिए कुछ नहीं था, लेकिन उन्होंने एक ऐसा वित्तीय दांव खेला जिसने उन्हें शीर्ष पर पहुंचा दिया। "
+            f"आम इंसान सिर्फ मेहनत करता है, लेकिन असली दौलतमंद सिस्टम और लीवरेज का इस्तेमाल करते हैं। "
+            f"पैसा समय के बदले नहीं, बल्कि आपके द्वारा पैदा की गई वैल्यू के बदले आता है। "
+            f"इस फॉर्मूले को अपनी जिंदगी में उतारिए। {random.choice(HINDI_CTAS)}"
+        )
+        stories.append({
+            "id": "story_4",
+            "style": "wealth_secrets",
+            "title": f"करोड़ों कमाने का गुप्त नियम 💰",
+            "hook": "अमीर लोग यह बात किसी को नहीं सिखाते 🤑",
+            "script": story_4_script,
+            "visual_keywords": ["gold bullion coins", "luxury penthouse skyline", "financial stock chart green", "wealth power handshake", "diamond luxury"],
+            "language": "hi"
+        })
+
+        # Story Style 5: ⚡ रोमांचक टर्निंग पॉइंट (High-Stakes Turning Point Drama)
+        story_5_script = (
+            f"जब चारों तरफ अंधेरा था और सबने उम्मीद छोड़ दी थी, तब {entity} ने इतिहास का सबसे साहसी फैसला लिया। "
+            f"उस एक पल की झिझक सब कुछ बर्बाद कर सकती थी, लेकिन उन्होंने बिना डरे कदम आगे बढ़ाया। "
+            f"यही वह पल था जिसने एक साधारण इंसान को महान बना दिया। "
+            f"याद रखिए, आपकी किस्मत किसी और के हाथों में नहीं, आपके अपने साहसिक फैसलों में है। "
+            f"{random.choice(HINDI_CTAS)}"
+        )
+        stories.append({
+            "id": "story_5",
+            "style": "action_story",
+            "title": f"वह 1 सेकंड जिसने इतिहास पलट दिया ⚡",
+            "hook": "इस टर्निंग पॉइंट ने पूरी बाजी पलट दी 🚀",
+            "script": story_5_script,
+            "visual_keywords": ["running through fire drama", "turning point clock countdown", "extreme courage face", "epic victory stadium", "lightning storm"],
+            "language": "hi"
+        })
+
+        # Story Style 6: 💡 1 मिनट का सटीक सबक (1-Minute Masterclass)
+        story_6_script = (
+            f"अगर आप किसी भी क्षेत्र में टॉप 1% में आना चाहते हैं, तो {entity} का यह बुनियादी सिद्धांत याद रखें। "
+            f"असफल लोग हर समस्या में बहाना ढूंढते हैं, जबकि सफल लोग हर चुनौती को अवसर में बदल देते हैं। "
+            f"रोजाना सिर्फ 1% सुधार आपको साल के अंत में 37 गुना बेहतर बना देता है। "
+            f"आज से ही शुरुआत कीजिए। {random.choice(HINDI_CTAS)}"
+        )
+        stories.append({
+            "id": "story_6",
+            "style": "masterclass",
+            "title": f"1 मिनट में टॉप 1% बनने का फॉर्मूला 💡",
+            "hook": "यह छोटा सा बदलाव आपकी जिंदगी बदल देगा 🎯",
+            "script": story_6_script,
             "visual_keywords": ["laser focus target", "discipline clock", "mindset brain light", "growth chart upward", "leader presentation"],
             "language": "hi"
         })
 
-        # Story Style 3: सबसे बड़ी गलती (The Costly Mistake)
-        story_3_script = (
-            f"यह एक ऐसी गलती है जिसे 99% लोग अपनी जिंदगी में दोहराते हैं। "
-            f"{entity} ने अपने करियर के सबसे कठिन समय में एक कड़ा फैसला लिया था। "
-            f"जब समाज ने उन पर शक किया, तब उन्होंने खुद पर भरोसा करना नहीं छोड़ा। "
-            f"अगर आप भी दूसरों के डर के हिसाब से अपने फैसले लेंगे, तो कभी अपने असली सामर्थ्य तक नहीं पहुंच पाएंगे। "
-            f"डर से आगे बढ़िए और अपने काम पर भरोसा रखिए। {random.choice(HINDI_CTAS)}"
-        )
-        stories.append({
-            "id": "story_3",
-            "style": "costly_mistake",
-            "title": f"99% लोग यह भारी गलती करते हैं ⚠️",
-            "hook": "क्या आप भी यही गलती कर रहे हैं? 🛑",
-            "script": story_3_script,
-            "visual_keywords": ["danger warning sign", "doubt confusion face", "courage determination", "victory celebration", "follow dream path"],
-            "language": "hi"
-        })
+        # Filter by style if requested, or return full curated set
+        if style and style != "all" and any(s["style"] == style for s in stories):
+            # Prioritize requested style
+            stories.sort(key=lambda s: 0 if s["style"] == style else 1)
 
         # Add Social Posting Packs to each story
         for idx, s in enumerate(stories):

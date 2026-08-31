@@ -3,7 +3,11 @@ import subprocess
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Callable
-import torch
+try:
+    import torch
+    HAS_CUDA = torch.cuda.is_available()
+except ImportError:
+    HAS_CUDA = False
 
 from backend.config import FFMPEG_PATH, TEMP_DIR, DEFAULT_WHISPER_MODEL
 
@@ -14,7 +18,7 @@ class Transcriber:
         self.model_size = model_size
         self._model = None
         # Auto-detect device
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = "cuda" if HAS_CUDA else "cpu"
         self.compute_type = "float16" if self.device == "cuda" else "int8"
         logger.info(f"Initialized Transcriber with model={model_size}, device={self.device}, compute_type={self.compute_type}")
 

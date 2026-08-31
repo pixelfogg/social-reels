@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Viral Story Studio - Multi-Clip B-Roll Video Generator</title>
+    <meta name="description" content="Generate realistic viral reels and shorts from any idea by auto-scripting scenes, searching internet B-roll clips, and mixing neural voiceovers with karaoke captions.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Montserrat:wght@700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="css/style.css?v=5">
+    <link rel="stylesheet" href="css/broll_studio.css?v=5">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Ambient Glows -->
+        <div class="ambient-glow glow-1"></div>
+        <div class="ambient-glow glow-2"></div>
+        <div class="ambient-glow glow-3"></div>
+
+        <!-- Navigation Bar -->
+        <header class="navbar">
+            <div class="nav-brand">
+                <div class="brand-icon">
+                    <i data-lucide="sparkles"></i>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">Reels<span class="brand-gradient">AI</span></span>
+                    <span class="brand-badge story-badge">B-ROLL STUDIO</span>
+                </div>
+            </div>
+            <div class="nav-actions">
+                <a href="index.html" class="btn-nav">
+                    <i data-lucide="youtube"></i> YouTube to Reels
+                </a>
+                <a href="broll_studio.html" class="btn-nav btn-nav-highlight active">
+                    <i data-lucide="clapperboard"></i> <strong>AI B-Roll Story Studio</strong>
+                </a>
+                <button class="btn-nav" id="btn-open-history" onclick="openHistoryDrawer()">
+                    <i data-lucide="history"></i> History <span class="history-count-badge" id="history-badge">0</span>
+                </button>
+                <button class="btn-nav" id="btn-open-socials" onclick="openSocialModal()">
+                    <i data-lucide="share-2"></i> Connect Socials <span class="status-dot-mini" id="nav-social-dot"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-badge broll-badge">
+                <i data-lucide="film"></i> Multi-Clip Internet B-Roll & Story Engine 2.0
+            </div>
+            <h1 class="hero-title">
+                Create <span class="text-gradient">Viral Faceless Reels</span> from Any Idea or Topic
+            </h1>
+            <p class="hero-subtitle">
+                Automated scene-by-scene scriptwriting, smart internet B-roll discovery, 3-second scene cuts, hyper-realistic voiceovers & animated pop captions.
+            </p>
+
+            <!-- Main Topic Generator Card -->
+            <div class="input-card glass-panel">
+                <div class="card-section-header">
+                    <div class="section-title-box">
+                        <i data-lucide="sparkles"></i>
+                        <h3>1. Enter Topic, Secret, or Story Prompt</h3>
+                    </div>
+                    <span class="section-badge">High-Retention Script Engine</span>
+                </div>
+
+                <!-- Topic Input -->
+                <div class="input-group topic-group">
+                    <div class="input-icon">
+                        <i data-lucide="lightbulb"></i>
+                    </div>
+                    <input type="text" id="story-topic-input" placeholder="e.g. How Casinos Trick Your Brain into Losing Money..." value="The Dark Psychology of Casino Design">
+                    <button class="btn-generate-script" id="btn-generate-script" onclick="generateStoryScript()">
+                        <i data-lucide="wand-2"></i> Auto-Script Scenes
+                    </button>
+                </div>
+
+                <!-- Instant Viral Ideas -->
+                <div class="sample-pills">
+                    <span class="sample-label"><i data-lucide="flame"></i> Viral Topics:</span>
+                    <button class="sample-btn" onclick="setTopic('The Dark Psychology of Casino Design', 'dark_secrets')">
+                        🎰 Casino Mind Tricks
+                    </button>
+                    <button class="sample-btn" onclick="setTopic('The Secret Trick Behind Fast Food Addiction', 'dark_secrets')">
+                        🍔 Fast Food Secret
+                    </button>
+                    <button class="sample-btn" onclick="setTopic('How Steve Jobs Saved Apple with 1 Rule', 'wealth_money')">
+                        🍎 Steve Jobs Rule
+                    </button>
+                    <button class="sample-btn" onclick="setTopic('Why 99% of People Stay Trapped in 9 to 5', 'wealth_money')">
+                        💼 The 99% Trap
+                    </button>
+                    <button class="sample-btn" onclick="setTopic('The 3 Darkest Persuasion Tricks Used by Politicians', 'psychology_tricks')">
+                        🔮 Dark Psychology
+                    </button>
+                </div>
+
+                <!-- Script Configuration Bar -->
+                <div class="config-grid">
+                    <div class="config-item">
+                        <label><i data-lucide="folder-kanban"></i> Viral Niche Framework</label>
+                        <select id="config-niche" class="select-styled" onchange="onNicheChange()">
+                            <option value="dark_secrets" selected>🕵️‍♂️ Dark Secrets & Conspiracies</option>
+                            <option value="wealth_money">💰 Wealth, Money & Power</option>
+                            <option value="tech_ai">🧠 Tech, AI & Future Shock</option>
+                            <option value="psychology_tricks">🔮 Dark Psychology & Human Brain</option>
+                            <option value="business_breakdown">📈 1-Minute Business Masterclass</option>
+                        </select>
+                    </div>
+
+                    <div class="config-item">
+                        <label><i data-lucide="mic"></i> Human Voice & Studio Mastering</label>
+                        <select id="config-voice" class="select-styled">
+                            <option value="en-US-AndrewMultilingualNeural" selected>🎙️ Andrew — Warm, Authentic, Human Conversational (Multilingual)</option>
+                            <option value="en-US-BrianMultilingualNeural">🎙️ Brian — Natural, Casual, Sincere Storyteller (Multilingual)</option>
+                            <option value="en-US-AvaMultilingualNeural">🎙️ Ava — Expressive, Engaging Human Storyteller (Multilingual)</option>
+                            <option value="en-US-GuyNeural">🎙️ Guy — Passionate Deep Documentary Filmmaker</option>
+                            <option value="en-IN-NeerjaExpressiveNeural">🎙️ Neerja — Expressive Indian Accent & Hinglish Narrator</option>
+                            <option value="hi-IN-MadhurNeural">🎙️ Madhur — Deep Hindi Documentary (Male)</option>
+                            <option value="hi-IN-SwaraNeural">🎙️ Swara — Emotive Hindi Storyteller (Female)</option>
+                            <option value="en-GB-RyanNeural">🎙️ Ryan — Deep British Cinematic Narrative</option>
+                            <option value="en-US-ChristopherNeural">🎙️ Christopher — Authoritative Documentary Voice</option>
+                            <option value="eleven_adam">💎 ElevenLabs Adam — Ultra-Realistic Studio Human Clone</option>
+                            <option value="eleven_rachel">💎 ElevenLabs Rachel — Ultra-Realistic Studio Narrative</option>
+                        </select>
+                    </div>
+
+                    <div class="config-item">
+                        <label><i data-lucide="music-2"></i> Audio Vibe & BGM</label>
+                        <select id="config-audio-vibe" class="select-styled">
+                            <option value="mystery_suspense" selected>🕵️‍♂️ Dark Mystery & Suspense (Intense Drone)</option>
+                            <option value="phonk_cyberpunk">⚡ Cyberpunk & Phonk Energy (Fast Bass Pulse)</option>
+                            <option value="cinematic_hype">🔥 Cinematic Action & Drama (Epic Pad)</option>
+                            <option value="lofi_chill">☕ Smooth Lo-Fi & Narrative (Chill Groove)</option>
+                            <option value="original_authentic">🎙️ Pure Voice (No Music)</option>
+                        </select>
+                    </div>
+
+                    <div class="config-item">
+                        <label><i data-lucide="type"></i> Subtitle & Captions</label>
+                        <select id="config-theme" class="select-styled">
+                            <option value="none" selected>🚫 No Captions (Clean Visuals / Immersive Footage)</option>
+                            <option value="hormozi">⚡ Hormozi Style (Bold Yellow/Cyan Pop)</option>
+                            <option value="mrbeast">🔥 MrBeast Energy (Vibrant Green & Gold Stroke)</option>
+                            <option value="submagic">✨ Submagic Minimal (Modern Glass & Clean Pill)</option>
+                            <option value="clean_bold">💡 Clean Bold (High Contrast White / Black Shadow)</option>
+                        </select>
+                    </div>
+
+                    <div class="config-item">
+                        <label><i data-lucide="crop"></i> Video Framing & Aspect</label>
+                        <select id="config-framing" class="select-styled">
+                            <option value="full_screen" selected>📱 Full Screen Portrait (Pexels 9:16 — Edge-to-Edge)</option>
+                            <option value="blur_canvas">✨ Cinematic Canvas (Blurred BG)</option>
+                        </select>
+                    </div>
+
+                    <div class="config-item">
+                        <label><i data-lucide="clock"></i> Target Video Length</label>
+                        <select id="config-duration-mode" class="select-styled" onchange="syncDurationMode(this.value)">
+                            <option value="long" selected>🎬 3–5 Mins (Deep Documentary, 16+ Scenes)</option>
+                            <option value="medium">🔥 1–2 Mins (Extended Story, 8–10 Scenes)</option>
+                            <option value="short">⚡ 30–60s (Quick Viral Reel, 5 Scenes)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Optional AI Model & Voice Key Accordion -->
+                <div style="margin-top: 14px; padding: 10px 16px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px;">
+                    <details style="font-size: 12px; color: var(--text-muted);">
+                        <summary style="cursor: pointer; color: var(--accent-cyan); font-weight: 500; display: inline-flex; align-items: center; gap: 6px;">
+                            <i data-lucide="key" style="width: 14px; height: 14px;"></i>
+                            <span>⚡ AI Script & Human Voice Keys (Optional: Gemini / Groq / OpenAI & ElevenLabs)</span>
+                        </summary>
+                        <div style="margin-top: 10px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px;">
+                            <div>
+                                <label style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 4px;">🧠 Script AI Key (Gemini / Groq / OpenAI):</label>
+                                <input type="password" id="user-ai-api-key" class="select-styled" style="width: 100%; font-size: 12px;" placeholder="Paste Gemini (AIza...) or Groq (gsk_...) Key" onchange="saveAiApiKey(this.value)">
+                            </div>
+                            <div>
+                                <label style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 4px;">💎 ElevenLabs Voice Key (For studio human clone voices):</label>
+                                <input type="password" id="user-elevenlabs-key" class="select-styled" style="width: 100%; font-size: 12px;" placeholder="Paste ElevenLabs API Key (xi-...)" onchange="saveElevenLabsKey(this.value)">
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- Scene Breakdown Timeline Section -->
+            <div class="scene-timeline-section hidden" id="scene-timeline-section">
+                <div class="timeline-header">
+                    <div>
+                        <h2 class="timeline-title"><i data-lucide="layers"></i> Scene-by-Scene Multi-Clip Breakdown</h2>
+                        <p class="timeline-desc">Every scene is mapped to matched Pexels 9:16 portrait video clips with human voice & background music.</p>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-add-scene" onclick="addNewScene()"><i data-lucide="plus"></i> Add Scene</button>
+                    </div>
+                </div>
+
+                <!-- Interactive Topic & Prompt Bar directly in Timeline -->
+                <div class="timeline-topic-bar glass-panel" style="margin-bottom: 20px; padding: 16px 20px; border-radius: 12px; display: flex; flex-direction: column; gap: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 280px; position: relative;">
+                            <input type="text" id="timeline-topic-input" class="select-styled" style="width: 100%; font-size: 14px; font-weight: 600; padding-left: 36px;" placeholder="Topic for deep explanatory scenes..." value="The Dark Psychology of Casino Design">
+                            <i data-lucide="lightbulb" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: #00ffa3;"></i>
+                        </div>
+                        <select id="timeline-duration-mode" class="select-styled" style="width: 250px;" onchange="syncDurationMode(this.value)">
+                            <option value="long" selected>🎬 3–5 Mins (16+ Deep Scenes)</option>
+                            <option value="medium">🔥 1–2 Mins (8–10 Scenes)</option>
+                            <option value="short">⚡ 30–60s (5 Scenes)</option>
+                        </select>
+                        <button class="btn-generate-script" style="padding: 10px 18px;" onclick="generateStoryScriptFromTimeline()">
+                            <i data-lucide="sparkles"></i> Generate Deep Scenes
+                        </button>
+                    </div>
+                    <details style="font-size: 12px; color: var(--text-muted);">
+                        <summary style="cursor: pointer; color: var(--accent-cyan); font-weight: 500; display: inline-flex; align-items: center; gap: 4px;">
+                            <span>📝 Optional: Custom Story Prompt or Paste Full Script / Article</span>
+                        </summary>
+                        <textarea id="timeline-custom-prompt" class="scene-script-textarea" style="margin-top: 8px; font-size: 13px;" rows="3" placeholder="Type specific instructions or paste your full 3-5 minute script here. Our AI will automatically split it into consecutive scenes with matching Pexels portrait search terms..."></textarea>
+                    </details>
+                </div>
+
+                <div class="scenes-list" id="scenes-list-container">
+                    <!-- Dynamic Scene Cards Injected via JS -->
+                </div>
+
+                <!-- Final Master Synthesize Action -->
+                <div class="master-action-bar">
+                    <button class="btn-synthesize-master" id="btn-synthesize-master" onclick="startMasterBrollRender()">
+                        <span class="btn-content">
+                            <i data-lucide="sparkles"></i> Render Multi-Clip 9:16 Full Screen Video
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progress Tracker Section -->
+        <section class="progress-section hidden" id="progress-section">
+            <div class="progress-card glass-panel">
+                <div class="progress-header">
+                    <div>
+                        <span class="progress-badge">AI MULTI-CLIP SYNTHESIZER</span>
+                        <h3 class="progress-title" id="progress-title">Creating Your Viral B-Roll Reel...</h3>
+                    </div>
+                    <div class="progress-percent" id="progress-percent">0%</div>
+                </div>
+                <div class="progress-bar-track">
+                    <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
+                </div>
+                <div class="progress-status-line">
+                    <span class="pulse-dot"></span>
+                    <span id="progress-detail-msg">Synthesizing neural voiceover & fetching internet B-roll...</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Studio Preview Section -->
+        <section class="studio-section hidden" id="studio-section">
+            <div class="studio-header">
+                <div>
+                    <h2 class="studio-title"><i data-lucide="check-circle-2"></i> Master Reel Ready!</h2>
+                    <p class="studio-desc">Rendered in vertical 9:16 format with high-retention multi-clip scene pacing.</p>
+                </div>
+                <div class="studio-header-actions">
+                    <button class="btn-secondary" onclick="resetBrollStudio()"><i data-lucide="arrow-left"></i> Create Another Reel</button>
+                </div>
+            </div>
+
+            <div class="studio-layout">
+                <!-- 9:16 Video Player -->
+                <div class="player-panel glass-panel">
+                    <div class="phone-mockup">
+                        <video id="main-broll-video" controls playsinline loop class="reel-video-element"></video>
+                    </div>
+                </div>
+
+                <!-- Actions & 1-Click Publishing Panel -->
+                <div class="controls-panel glass-panel">
+                    <div class="panel-header">
+                        <h4 id="broll-reel-title">The Dark Psychology of Casino Design</h4>
+                        <div class="virality-chip">🔥 98/100 Viral Score</div>
+                    </div>
+
+                    <div class="action-buttons-row">
+                        <a id="btn-download-reel" href="#" download class="btn-download-primary">
+                            <i data-lucide="download"></i> Download 1080x1920 MP4
+                        </a>
+                    </div>
+
+                    <!-- 1-Click Push to Social Media -->
+                    <div class="direct-publish-panel">
+                        <div class="direct-publish-header">
+                            <span class="direct-publish-title"><i data-lucide="send"></i> 1-Click Direct Push to Social Feeds</span>
+                            <button class="btn-text-link" onclick="openSocialModal()"><i data-lucide="settings"></i> Manage Accounts</button>
+                        </div>
+                        <div class="platform-checkbox-row">
+                            <label class="platform-check-item">
+                                <input type="checkbox" id="pub-check-ig" checked>
+                                <span class="check-box-label">📸 Instagram Reels</span>
+                            </label>
+                            <label class="platform-check-item">
+                                <input type="checkbox" id="pub-check-yt" checked>
+                                <span class="check-box-label">🔴 YouTube Shorts</span>
+                            </label>
+                            <label class="platform-check-item">
+                                <input type="checkbox" id="pub-check-tw">
+                                <span class="check-box-label">🐦 X (Twitter)</span>
+                            </label>
+                            <label class="platform-check-item">
+                                <input type="checkbox" id="pub-check-tt">
+                                <span class="check-box-label">🎵 TikTok</span>
+                            </label>
+                            <label class="platform-check-item">
+                                <input type="checkbox" id="pub-check-hook">
+                                <span class="check-box-label">🌐 Webhook / Zapier</span>
+                            </label>
+                        </div>
+                        <button class="btn-publish-now" id="btn-publish-now" onclick="publishActiveBrollReel()">
+                            <span class="btn-content">
+                                <i data-lucide="zap"></i> Publish Master Reel Now
+                            </span>
+                        </button>
+                        <div id="publish-result-toast" class="publish-result-toast hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Drawer & Social Modals -->
+        <div class="drawer-overlay hidden" id="history-overlay" onclick="closeHistoryDrawer()"></div>
+        <div class="history-drawer hidden" id="history-drawer">
+            <div class="drawer-header">
+                <div class="drawer-title-box">
+                    <i data-lucide="history"></i>
+                    <h3>Processed Video History</h3>
+                </div>
+                <button class="btn-close-drawer" onclick="closeHistoryDrawer()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="drawer-body">
+                <div class="history-list" id="history-list-container"></div>
+            </div>
+        </div>
+
+        <div class="modal-overlay hidden" id="social-modal-overlay" onclick="closeSocialModal()"></div>
+        <div class="social-modal glass-panel hidden" id="social-modal">
+            <div class="modal-header">
+                <div class="modal-title-box">
+                    <i data-lucide="share-2"></i>
+                    <div>
+                        <h3>Connect Real Social Accounts</h3>
+                        <p class="modal-subtitle">Configure API keys & tokens for instant 1-click publishing.</p>
+                    </div>
+                </div>
+                <button class="btn-close-modal" onclick="closeSocialModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="social-account-cards">
+                    <div class="social-card">
+                        <div class="social-card-header">
+                            <div class="social-brand">
+                                <span class="social-icon-box ig">📸</span>
+                                <div>
+                                    <h4 class="social-name">Instagram Reels</h4>
+                                    <span class="social-status-badge" id="badge-status-ig">⚪ Not Connected</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="social-fields">
+                            <div class="field-group">
+                                <label>Instagram Business User ID</label>
+                                <input type="text" id="acc-ig-user-id" placeholder="e.g. 17841400000000000">
+                            </div>
+                            <div class="field-group">
+                                <label>Meta Graph User Access Token</label>
+                                <input type="password" id="acc-ig-token" placeholder="EAAB...">
+                            </div>
+                            <div class="social-card-actions">
+                                <button class="btn-save-acc" onclick="saveSocialAccount('instagram')"><i data-lucide="check"></i> Save Instagram</button>
+                                <button class="btn-disconnect-acc" onclick="disconnectSocialAccount('instagram')">Disconnect</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- YouTube -->
+                    <div class="social-card">
+                        <div class="social-card-header">
+                            <div class="social-brand">
+                                <span class="social-icon-box yt">🔴</span>
+                                <div>
+                                    <h4 class="social-name">YouTube Shorts</h4>
+                                    <span class="social-status-badge" id="badge-status-yt">⚪ Not Connected</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="social-fields">
+                            <div class="field-group">
+                                <label>YouTube OAuth / API Access Token</label>
+                                <input type="password" id="acc-yt-token" placeholder="ya29.a0...">
+                            </div>
+                            <div class="social-card-actions">
+                                <button class="btn-save-acc" onclick="saveSocialAccount('youtube')"><i data-lucide="check"></i> Save YouTube</button>
+                                <button class="btn-disconnect-acc" onclick="disconnectSocialAccount('youtube')">Disconnect</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Twitter -->
+                    <div class="social-card">
+                        <div class="social-card-header">
+                            <div class="social-brand">
+                                <span class="social-icon-box tw">🐦</span>
+                                <div>
+                                    <h4 class="social-name">X (Twitter)</h4>
+                                    <span class="social-status-badge" id="badge-status-twitter">⚪ Not Connected</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="social-fields">
+                            <div class="field-group">
+                                <label>Bearer Token</label>
+                                <input type="password" id="acc-tw-token" placeholder="AAAA...">
+                            </div>
+                            <div class="social-card-actions">
+                                <button class="btn-save-acc" onclick="saveSocialAccount('twitter')"><i data-lucide="check"></i> Save X</button>
+                                <button class="btn-disconnect-acc" onclick="disconnectSocialAccount('twitter')">Disconnect</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Webhook -->
+                    <div class="social-card">
+                        <div class="social-card-header">
+                            <div class="social-brand">
+                                <span class="social-icon-box zap">🌐</span>
+                                <div>
+                                    <h4 class="social-name">Webhook (Zapier / Make)</h4>
+                                    <span class="social-status-badge" id="badge-status-webhook">⚪ Not Connected</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="social-fields">
+                            <div class="field-group">
+                                <label>Webhook Target URL</label>
+                                <input type="url" id="acc-webhook-url" placeholder="https://hooks.zapier.com/...">
+                            </div>
+                            <div class="social-card-actions">
+                                <button class="btn-save-acc" onclick="saveSocialAccount('webhook')"><i data-lucide="check"></i> Save Webhook</button>
+                                <button class="btn-disconnect-acc" onclick="disconnectSocialAccount('webhook')">Disconnect</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>AI B-Roll Multi-Clip Story Studio • Automated Internet Clip Discovery & Neural Voiceovers</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/broll_studio.js?v=5"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

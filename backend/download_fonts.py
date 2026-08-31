@@ -7,8 +7,10 @@ FONT_URLS = {
     "Montserrat-ExtraBold.ttf": "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/Montserrat%5Bwght%5D.ttf",
     "Anton-Regular.ttf": "https://raw.githubusercontent.com/google/fonts/main/ofl/anton/Anton-Regular.ttf",
     "BebasNeue-Regular.ttf": "https://raw.githubusercontent.com/google/fonts/main/ofl/bebasneue/BebasNeue-Regular.ttf",
-    "Roboto-Bold.ttf": "https://raw.githubusercontent.com/google/fonts/main/apache/roboto/static/Roboto-Bold.ttf"
+    "Roboto-Bold.ttf": "https://github.com/google/fonts/raw/main/apache/roboto/Roboto%5Bwdth%2Cwght%5D.ttf"
 }
+
+import requests
 
 def ensure_fonts():
     """Ensure standard viral fonts are downloaded for subtitle rendering."""
@@ -18,12 +20,14 @@ def ensure_fonts():
         if not font_path.exists() or font_path.stat().st_size < 1000:
             try:
                 print(f"Downloading font {font_name}...")
-                req = urllib.request.Request(
+                resp = requests.get(
                     url,
-                    headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+                    headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'},
+                    timeout=20
                 )
-                with urllib.request.urlopen(req, timeout=15) as response, open(font_path, 'wb') as out_file:
-                    out_file.write(response.read())
+                resp.raise_for_status()
+                with open(font_path, 'wb') as out_file:
+                    out_file.write(resp.content)
                 print(f"Downloaded {font_name} ({font_path.stat().st_size} bytes)")
             except Exception as e:
                 print(f"Could not download {font_name}: {e}. Will use system Arial/Impact.")

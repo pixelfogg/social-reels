@@ -69,7 +69,7 @@ class VideoDownloader:
             'format': 'bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best[ext=mp4]/best',
             'outtmpl': out_template,
             'merge_output_format': 'mp4',
-            'ffmpeg_location': ffmpeg_dir,
+            'ffmpeg_location': FFMPEG_PATH,
             'progress_hooks': [hook],
             'quiet': True,
             'no_warnings': True,
