@@ -1,0 +1,6 @@
+__pycache__
+*.pyc
+.env
+storage/videos/
+storage/temp/
+.git
