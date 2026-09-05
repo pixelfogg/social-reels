@@ -1,5 +1,15 @@
 # 🎬 ReelsAI Studio — Automated YouTube to Viral Shorts & Reels
 
+<div align="center">
+
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![AI Audio](https://img.shields.io/badge/AI_Audio-Edge_TTS-8E75C4?style=for-the-badge)](https://github.com/rany2/edge-tts)
+[![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=for-the-badge)](https://github.com/pixelfogg/social-reels/pulls)
+
+</div>
+
 > **AI-Powered Short-Form Production Engine with Natural Hindi Neural Narration, 10–15 Highlight Extraction, Animated Karaoke Captions, and Multi-Platform Social SEO Packages.**
 
 ---
