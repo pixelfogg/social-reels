@@ -36,7 +36,7 @@
 - **📸 Instagram Reels**: Hook, storytelling caption, CTA, 15+ curated hashtags, audio mixing tip & best posting hours.
 - **🔴 YouTube Shorts**: High-CTR title (<60 chars with `#Shorts`), SEO keyword description, tags list, and pinned comment prompt.
 - **🔵 Facebook Reels**: Provocative discussion headline and engagement questions.
-- **📦 1-Click Export**: Download all reels and platform text files as a single ZIP bundle.
+- **📦 1-Click Export**: Download all reels and platform text files as a single ZIP bundle all intacked.
 
 ---
 
