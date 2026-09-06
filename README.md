@@ -10,7 +10,7 @@
 
 </div>
 
-> **AI-Powered Short-Form Production Engine with Natural Hindi Neural Narration, 30–45 Highlight Extraction, Animated Karaoke Captions, and Multi-Platform Social Package.**
+> **AI-Powered Short-Form Production Engine with Natural Hindi Neural Narration, 30–45 Highlight Extraction, Animated Karaoke Captions, and Multi-Platform Social Packages and codes.**
 
 ---
 
