@@ -25,7 +25,7 @@
 ### 2. 🎬 Direct Highlights Mode (10–15 Reels per Video)
 - **Intelligent Virality Scoring**: Scans entire video timelines to discover top hooks, high-energy punchlines, and key lessons.
 - **Batch Reel Generation**: Extracts 1, 3, 5, 8, 10, 12, or 15 distinct, non-overlapping reels from any video.
-- **Dynamic 9:16 Vertical Framing**: Blurred background canvas, speaker face reframing, or center crop.
+- **Dynamic 9:16 and 16:9 Vertical Framing**: Blurred background canvas, speaker face reframing, or center crop.
 
 ### 3. ✨ Animated Karaoke Subtitles (Devanagari & Latin)
 - **Word-Level Synchronization**: Active word scale pop animation (`115%`) and custom palettes (*Hormozi Gold, MrBeast Green, Submagic Violet, Cyberpunk Cyan*).
